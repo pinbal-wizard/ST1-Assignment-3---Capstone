@@ -11,7 +11,7 @@
 <br />
 <div align="center">
 
-  <h3 align="center">WebsiteGrapher</h3>
+  <h3 align="center">Capstone Project</h3>
 
   <p align="center">
     These are the files for the capstone project for a software technology 1 unit.
