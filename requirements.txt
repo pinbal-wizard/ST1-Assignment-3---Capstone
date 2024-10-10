@@ -1,0 +1,5 @@
+nicegui==2.3.0
+pandas==2.2.0
+pyarrow==17.0.0
+numpy==1.26.4
+scipy==1.13.0

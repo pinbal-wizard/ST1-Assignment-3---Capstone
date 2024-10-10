@@ -10,38 +10,33 @@ Visual and statistic correlation analysis for selection of best features (Analys
 
 
 import data
+import pandas as pd
+
 
 
 class Analysis():
-    def __init__(self) -> None:
+    def displayData(self) -> None:
+        '''
+        Displays data in CSV
+        '''
+        #self.df.info()
+        print(self.df.isna().sum())
+        print(self.df.tail(5))
+        
+        for name, coloum in self.df.items():
+            if name in ["Year", "Model", "Title", "Price", "Kilometres", "Location", "ColourExtInt", "Car/Suv"]:
+                print(len(set(coloum)), ": " + name)
+                continue
+            #print(set(coloum))
+            print(len(set(coloum)), ": " + name) 
+
+
+    def __init__(self, data) -> None:
+        self.df = data.getData()
+        self.displayData()
         pass
     
     
     
 if __name__ == '__main__':
-    import pandas as pd
-
-    df = pd.read_csv("Australian Vehicle Prices.csv")
-
-    df.info()
-
-    #print(df.isna().sum())
-    #print(df.tail(5))
-
-    print(len(df))
-    for name, col in df.items():
-        mask = df[name] == "Other" 
-        df = df[~mask]
-        mask = df[name] == "-"
-        df = df[~mask]
-        df.dropna(inplace=True)
-
-
-    for name, coloum in df.items():
-        if name in ["Year", "Model", "Title", "Price", "Kilometres", "Location", "ColourExtInt", "Car/Suv"]:
-            print(len(set(coloum)), ": " + name + "\n")
-            continue
-        print(set(coloum))
-        print(len(set(coloum)), ": " + name + "\n")
-        
-    print(len(df))
+    dataAnalysis = Analysis()
