@@ -7,7 +7,6 @@ Analysise the file dependent on data to clean and import data
 Data exploration at basic level
 Visual and statistic correlation analysis for selection of best features (Analyse)
 '''
-#28
 
 import data
 import pandas as pd
@@ -29,14 +28,14 @@ class Analysis():
                 continue
             print(set(coloum))
             print(len(set(coloum)), ": " + name)
-
+        
     def analyseValue(self, column : str, value : any) -> int:
         '''
         Get the amount of rows that have the same value in the same column
 
         Parameters:
-        column (str): The name of the column to analyze.
-        value (any): The value to count in the specified column.
+            column (str): The name of the column to analyze.
+            value (any): The value to count in the specified column.
 
         Returns:
             int: The count of rows with the specified value in the column.
@@ -55,7 +54,9 @@ class Analysis():
         self.displayData()
         print("------ Random statitics ------")
         print(f"Electric vehicles: {self.analyseValue("FuelConsumption", "0")}")
-        print("------------------------------")
+        print("-------- Column Info ---------")
+
+        print(self.df.dtypes)
         pass
     
     

@@ -28,11 +28,9 @@ import pandas as pd
 
 
 class GUI():
-    def __init__(self) -> None:
+    def __init__(self, data) -> None:
         
-        df = pd.DataFrame({'Name': ['John', 'Anna', 'Peter', 'Linda'],
-                          'Age': [28, 34, 29, 32],
-                          'City': ['New York', 'Paris', 'Berlin', 'London']})
+        df = data.getData()
         
         with ui.header():
             ui.markdown("# **Software Technology Group 42**")
@@ -94,6 +92,11 @@ class GUI():
         ui.image()
         ui.run() 
         
-        
+
+
+
 if __name__ in {"__main__", "__mp_main__"}:
-    gui = GUI()
+    print("Run main.py, this won't work")
+    print("Thank you")
+    # Keeping this here if you really want to run this file without the dataset and watch it error out
+    #gui = GUI()
