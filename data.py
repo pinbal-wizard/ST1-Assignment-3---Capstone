@@ -103,7 +103,35 @@ class Data():
             result[brand] = "$" + str(avg_value)
         return result
     
-
+    def removeOutliers(self, method: str = "IQR", columns: list = None, zThreshold: float = 3.0) -> None:
+        '''
+        To remove the outliers from columns using either IQR or Z-score method
+        
+        Parameters:
+        method (str): Detection method, defaults to IQR but can use Z-score
+        columns (list): The list of columns to remove outliers from. Default to None, meaning all numerical columns
+        zThreshold (float): Z-score threshold for removal, defaults to 3
+        '''
+        if columns is None:
+            columns = self.df.select_dtypes(include=[float, int]).columns
+        
+        if method == 'IQR':
+            for column in columns:
+                Q1 = self.df[column].quantile(0.25)
+                Q3 = self.df[column].quantile(0.75)
+                IQR = Q3 - Q1
+                lowerBound = Q1 - 1.5 * IQR
+                upperBound = Q3 + 1.5 * IQR
+                self.df = self.df[(self.df[column] >= lowerBound) & (self.df[column] <= upperBound)]
+                
+        elif method == 'Z':
+            from scipy import stats
+            for column in columns:
+                zScores = stats.zscore(self.df[column])
+                self.df = self.df[(zScores < zThreshold) & (zScores > -zThreshold)]
+        
+        else:
+            print(f"Invalid removal method: {method}")
 
     def __init__(self) -> None:
         self.df = pd.read_csv("Australian Vehicle Prices.csv")
@@ -112,3 +140,10 @@ class Data():
         print(f"{len(self.df)} : Rows after cleaning")
         self.convertColumnTypes()
         
+        # Function test
+        # Seems to be working as intended, extreme outliers have been removed
+        print("Before outliers removal: ")
+        print(self.df.describe())
+        self.removeOutliers(method='IQR', columns=['Price']) # We can decide on other outliers later, this is just a test
+        print("After removing outliers: ")
+        print(self.df.describe())
