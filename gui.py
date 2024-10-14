@@ -26,10 +26,11 @@ from nicegui.events import ValueChangeEventArguments
 
 import pandas as pd
 
+import matplotlib.pyplot as plt
+
 
 class GUI():
     def __init__(self, data) -> None:
-        
         df = data.getData()
         
         with ui.header():
@@ -37,7 +38,7 @@ class GUI():
             
         ui.markdown("### Problem statement")
         ui.markdown(f"We are trying to predict the price of cars. There are many different variables in this problem, the dependent one is the price of the car. Our dataset has \
-                     {'INSERHERE'} other possible colums for independent variables however we will only be using {'INSERHERE'} of them these are: {'INSERHERE'}.")    
+                     {len(df.columns)} other possible colums for independent variables however we will only be using {'INSERHERE'} of them these are: {'INSERHERE'}.")    
             
         ui.markdown("#### Columns and Types")
         with ui.scroll_area().classes('w-50 h-100 border'):
@@ -49,10 +50,52 @@ class GUI():
                     ui.label(colType).props('inline font-size=100')
                 
         ui.markdown("#### Distribution of Target variable")
-        ui.image("images/noImage.jpg")          ### Replace With Histogram of the data
+        targetCol = "Price"
+        with ui.pyplot() as fig:  ### Replace With Histogram of the data
+            plt.title(targetCol.capitalize())         
+            plt.ylabel("Amount")
+            plt.xlabel("Price in $AUD")
+
+            plt.hist(df[targetCol])         
                 
-        ui.markdown("#### Data exploration")
-        ui.skeleton().classes('w-full')         ### Replace with segment to do basic exploration of data
+        ui.markdown("#### Data exploration")### Replace with segment to do basic exploration of data
+        selectedExploration = ui.select(list(df.columns), value="Price",on_change= lambda: dataExploration.refresh(selectedExploration.value))
+
+        @ui.refreshable
+        def dataExploration(text = "Price") -> None:
+            if(text in ["Location", "Brand", "Model", "Car/Suv", "Title", "Engine", "ColourExtInt"]):
+                ui.label("N\A")
+                return
+
+            with ui.pyplot() as fig:  ### Replace With Histogram of the data
+                plt.title(text.capitalize())         
+                plt.ylabel("Amount")
+                plt.xlabel("Price in $AUD")
+                plt.hist(df[text])  
+
+            with ui.grid(columns=3):
+                ui.markdown("**Mean**")
+                ui.markdown("**Median**")
+                ui.markdown("**Mode**")
+                
+
+                if df[text].dtype == object:
+                    ui.label("N\A")
+                else:
+                    ui.label(f"{df[text].mean():.2f}")
+
+                if df[text].dtype == object:
+                    ui.label("N\A")
+                else:
+                    ui.label(f"{df[text].median():.2f}")
+
+                if df[text].dtype == object:
+                    ui.label("N\A")
+                else:
+                    ui.label(f"{df[text].mode()[0]}")
+
+            
+        dataExploration()
         
         ui.markdown("#### Visual Exploratory Data Analysis")
         ui.skeleton().classes('w-full')        ### Replace with exploration of data but using graphs and shit
@@ -81,19 +124,16 @@ class GUI():
         trainTestSplitSlider = ui.slider(min=20,max=80, value=80) ### Make functional
         ui.label().bind_text_from(trainTestSplitSlider, 'value', backward=lambda v: f"Train {v}%, Test {100-v}%") 
         
-        ui.markdown("#### Regression algorithm")
+        ui.markdown("#### Regression algorithms")
         listofRegressionAlgorithms = ["Linear", "Decision tree", "Random forest", "Adaboost", "XGBoost", "K-Nearest neighbour", "SVM"]
         regressionAlgorithm = ui.radio(listofRegressionAlgorithms, value="Linear")   ### Make functional
         
         ui.markdown("#### Launch")
         ui.button("Start!", on_click=exit)
         
-        
         ui.image()
         ui.run() 
-        
-
-
+    
 
 if __name__ in {"__main__", "__mp_main__"}:
     print("Run main.py, this won't work")
