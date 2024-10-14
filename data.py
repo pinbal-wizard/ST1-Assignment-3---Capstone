@@ -145,7 +145,7 @@ class Data():
         print(f"{len(self.df)} : Rows after cleaning")
         self.convertColumnTypes()
         print(f"{len(self.df)} : Rows after Filtering")
-        self.removeOutliers(method='IQR', columns=['Price'])
+        self.removeOutliers(method='IQR', columns=['Price'])  # We can decide on other outliers later, this is just a test
 
         
 if __name__ == "__main__":
@@ -154,7 +154,6 @@ if __name__ == "__main__":
     # Seems to be working as intended, extreme outliers have been removed
     print("Before outliers removal: ")
     print(data.df.describe())
-    data.removeOutliers(method='IQR', columns=['Price']) # We can decide on other outliers later, this is just a test
     print("After removing outliers: ")
     print(data.df.describe())
     print(data.df.dtypes)
