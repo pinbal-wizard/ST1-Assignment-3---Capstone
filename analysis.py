@@ -48,18 +48,18 @@ class Analysis():
             return 0
         
 
-
     def __init__(self, data) -> None:
         self.df = data.getData()
-        self.displayData()
-        print("------ Random statitics ------")
-        print(f"Electric vehicles: {self.analyseValue("FuelConsumption", "0")}")
-        print("-------- Column Info ---------")
-
-        print(self.df.dtypes)
-        pass
+        
     
     
     
 if __name__ == '__main__':
-    dataAnalysis = Analysis()
+    data = data.Data()
+    dataAnalysis = Analysis(data)
+
+    dataAnalysis.displayData()
+    print("------ Random statitics ------")
+    print(f"Electric vehicles: {dataAnalysis.analyseValue('FuelConsumption', '0')}")
+    print("-------- Column Info ---------")
+    print(dataAnalysis.df.dtypes)
