@@ -10,9 +10,9 @@ Removal of outliers and missing values
 '''
 
 import pandas as pd
+from scipy import stats
 
 class Data():
-
     def cleanData(self) -> None:
         '''
         Cleans the CSV data by removing null values
@@ -55,6 +55,7 @@ class Data():
         removeNull(self)
         removeFluff(self)
             
+
     def convertColumnTypes(self) -> None:
         '''
         Converts some of the colums to the correct datatype to do ML
@@ -62,20 +63,21 @@ class Data():
         Returns:
             Nothing
         '''
-        self.df.astype({'Kilometres': 'int32'})
-        self.df.astype({'CylindersinEngine': 'int32'})
-        self.df.astype({'Year': 'int32'})
+        self.df['Kilometres'] = self.df['Kilometres'].astype({'Kilometres': 'int32'})
+        self.df['CylindersinEngine'] = self.df['CylindersinEngine'].astype({'CylindersinEngine': 'int32'})
+        self.df['Year'] = self.df['Year'].astype({'Year': 'int32'})
+        
         self.df['Price'] = pd.to_numeric(self.df['Price'], errors='coerce')
 
         
-        self.df = self.df.dropna(subset=['Price'])
+        self.df.dropna(subset=['Price'],inplace=True)
         self.df['Price'] = self.df['Price'].astype('int32')
-        pass
         
 
     def getData(self):
         return self.df
     
+
     def getColumnAvg(self, conditionColumn : str = None, condition : str = None, target : str = None ) -> float:
         '''
         Find the mean value of a target column given a condtion
@@ -90,6 +92,7 @@ class Data():
         '''
         return self.df.loc[self.df[conditionColumn] == condition, target].mean()
     
+
     def getBrandAvg(self) -> dict:
         '''
         Gets the average price for each brand and returns a dictionary of the brand and the average price
@@ -103,6 +106,7 @@ class Data():
             result[brand] = "$" + str(avg_value)
         return result
     
+
     def removeOutliers(self, method: str = "IQR", columns: list = None, zThreshold: float = 3.0) -> None:
         '''
         To remove the outliers from columns using either IQR or Z-score method
@@ -112,6 +116,7 @@ class Data():
         columns (list): The list of columns to remove outliers from. Default to None, meaning all numerical columns
         zThreshold (float): Z-score threshold for removal, defaults to 3
         '''
+        
         if columns is None:
             columns = self.df.select_dtypes(include=[float, int]).columns
         
@@ -125,7 +130,6 @@ class Data():
                 self.df = self.df[(self.df[column] >= lowerBound) & (self.df[column] <= upperBound)]
                 
         elif method == 'Z':
-            from scipy import stats
             for column in columns:
                 zScores = stats.zscore(self.df[column])
                 self.df = self.df[(zScores < zThreshold) & (zScores > -zThreshold)]
@@ -133,17 +137,24 @@ class Data():
         else:
             print(f"Invalid removal method: {method}")
 
+
     def __init__(self) -> None:
         self.df = pd.read_csv("Australian Vehicle Prices.csv")
         print(f"{len(self.df)} : Rows before cleaning")
         self.cleanData()
         print(f"{len(self.df)} : Rows after cleaning")
         self.convertColumnTypes()
+        print(f"{len(self.df)} : Rows after Filtering")
+        self.removeOutliers(method='IQR', columns=['Price'])
+
         
-        # Function test
-        # Seems to be working as intended, extreme outliers have been removed
-        print("Before outliers removal: ")
-        print(self.df.describe())
-        self.removeOutliers(method='IQR', columns=['Price']) # We can decide on other outliers later, this is just a test
-        print("After removing outliers: ")
-        print(self.df.describe())
+if __name__ == "__main__":
+    data = Data()
+    # Function test
+    # Seems to be working as intended, extreme outliers have been removed
+    print("Before outliers removal: ")
+    print(data.df.describe())
+    data.removeOutliers(method='IQR', columns=['Price']) # We can decide on other outliers later, this is just a test
+    print("After removing outliers: ")
+    print(data.df.describe())
+    print(data.df.dtypes)
