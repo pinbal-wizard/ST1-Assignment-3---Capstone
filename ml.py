@@ -51,6 +51,7 @@ class ML():
         print(f"R-squared: {r2}")
         print(f"Mean absolute error: {mae}")
         
+        # Printing the first 50 lines of result
         print('\nActual and Predicted Values: ')
         for i, (actual, predicted) in enumerate(zip(y_test, y_pred)):
             if i >= max_lines:
