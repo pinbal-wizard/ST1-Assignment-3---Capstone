@@ -35,6 +35,8 @@ class GUI():
         a = analysis.Analysis(d)
         self.df = d.getData()
         
+        app.storage.general['DataExploration'] = "Price"
+
         with ui.header():
             ui.markdown("# **Software Technology Group 42**")
             
