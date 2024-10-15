@@ -34,21 +34,6 @@ class GUI():
         d = data.Data()
         a = analysis.Analysis(d)
         self.df = d.getData()
-
-        app.storage.general['DataExploration'] = "Price"
-
-        @ui.refreshable
-        def temp():
-            ui.notify(str(app.storage.general['settings']))
-            ui.label(app.storage.general['settings'])
-        temp()
-
-        def inc():
-            app.storage.general['DataExploration'] = "Doors"
-            print("segs")
-            app.storage.general['settings'] += 1
-            temp.refresh()
-        ui.button("click me",on_click=inc)
         
         with ui.header():
             ui.markdown("# **Software Technology Group 42**")
