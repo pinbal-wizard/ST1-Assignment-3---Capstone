@@ -53,7 +53,6 @@ class Analysis():
         
     
     
-    
 if __name__ == '__main__':
     data = data.Data()
     dataAnalysis = Analysis(data)

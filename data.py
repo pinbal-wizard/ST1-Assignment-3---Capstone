@@ -12,11 +12,23 @@ Removal of outliers and missing values
 import pandas as pd
 from scipy import stats
 
+
+"""Modes are ["Delete Rows", "Median Value", "Mode Value", "Interpolate"]"""
+
 class Data():
-    def cleanData(self) -> None:
+    '''
+    ####################################################################################################################
+    This function needs to be changed to use the different modes
+    
+    '''
+    def cleanData(self, mode) -> None:
         '''
         Cleans the CSV data by removing null values
+        Modes are ["Delete Rows", "Median Value", "Mode Value", "Interpolate"]
         '''
+
+        print(mode, "Yay")
+
         # Drop data thats 'N/A', 'Other' or '-'
         def removeNull(self) -> None:
             '''
@@ -138,10 +150,10 @@ class Data():
             print(f"Invalid removal method: {method}")
 
 
-    def __init__(self) -> None:
+    def __init__(self, mode = "Delete Rows") -> None:
         self.df = pd.read_csv("Australian Vehicle Prices.csv")
         print(f"{len(self.df)} : Rows before cleaning")
-        self.cleanData()
+        self.cleanData(mode)
         print(f"{len(self.df)} : Rows after cleaning")
         self.convertColumnTypes()
         print(f"{len(self.df)} : Rows after Filtering")
