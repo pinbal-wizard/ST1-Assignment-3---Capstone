@@ -9,13 +9,15 @@ Training/testing sampling and K-fold cross validation
 Investigating multiple regression algorithms (Investigating)
 Selection of the best model (Finding)
 Deployment of the best model in production
-Algorithms to be implemented: Linear Regression, Decision Tree, Random Forest, Adaboost, XGBoost, K-Nearest Neighbour, SVM
+Algorithms to be implemented:Random Forest, Adaboost, XGBoost, K-Nearest Neighbour, SVM
 '''
 
 import pandas as pd
 import numpy as np 
+from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import r2_score, mean_absolute_error
 from data import Data
 
@@ -40,7 +42,7 @@ class ML:
         if algorithm == 'Linear':
             self.linearRegression(features, split)
         elif algorithm == 'Decision Tree':
-            print("Decision Tree algorithm not implemented yet.")
+            self.DecisionTree(features, split)
         else:
             print(f"Error: {algorithm} is not a supported algorithm.")
 
@@ -81,7 +83,46 @@ class ML:
                 print(f"... And {len(y_test) - max_lines} more lines")
                 break
             print(f"Actual ($): {actual}, Predicted ($): {predicted: .2f}")
+            
+    def DecisionTree(self, features: list, split: float, max_lines = 50):
+        '''
+        Train and evaluate using Decision Tree based on user settings
+        
+        Parameters:
+        features (list): The select predictors from the user 
+        split (float): The train/test split from the user
+        max_lines (int): Maximum lines that will be printed from the evaluation
+        
+        Returns:
+        None: Print out the predicted vs. the actual results directly 
+        '''
+        
+        X = self.df[features]
+        y = self.df['Price']
+        
+        # Debug
+        print(f"Selected predictors: {list(X.columns)}")
+        
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size= 1 - split, random_state = 42)
 
+        model = DecisionTreeRegressor()
+        model.fit(X_train, y_train)
+        
+        y_pred = model.predict(X_test)
+        
+        r2 = r2_score(y_test, y_pred)
+        mae = mean_absolute_error(y_test, y_pred)
+        
+        print(f"Decision Tree results")
+        print(f"R-squared: {r2}")
+        print(f"Mean Absolute Error: {mae}")
+        
+        print("\nActual vs Predicted values:")
+        for i, (actual, predicted) in enumerate(zip(y_test, y_pred)):
+            if i >= max_lines:
+                print(f"... And {len(y_test) - max_lines} more lines")
+                break
+            print(f"Actual ($): {actual}, Predicted ($): {predicted: .2f}")
 
 if __name__ == "__main__":
     print("Run this from the GUI.")
