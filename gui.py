@@ -90,23 +90,25 @@ class GUI():
         ui.skeleton().classes('w-full')      ### idk go figure out yourself  its step 9
         
         ui.markdown("####  Final predictors/features")
+        self.selectedPredictors = [] # Store selected predictors/features
         with ui.list():                      ### make updates to this reflect in code
             cols = self.df.dtypes.to_string().split("\n")
             for col in cols:
                 colName, _ = col.split()
-                ui.checkbox(colName)
+                checkbox = ui.checkbox(colName)
+                checkbox.on_value_change(lambda e, col=colName: self.updatePredictors(col, e.value)) # Update predictors list with selected values
                 ui.space() 
         
         ui.markdown("#### Train/test data split")
-        trainTestSplitSlider = ui.slider(min=20,max=80, value=80) ### Make functional
-        ui.label().bind_text_from(trainTestSplitSlider, 'value', backward=lambda v: f"Train {v}%, Test {100-v}%") 
+        self.trainTestSplitSlider = ui.slider(min=20,max=80, value=80) ### Make functional
+        ui.label().bind_text_from(self.trainTestSplitSlider, 'value', backward=lambda v: f"Train {v}%, Test {100-v}%") 
         
         ui.markdown("#### Regression algorithms")
         listofRegressionAlgorithms = ["Linear", "Decision tree", "Random forest", "Adaboost", "XGBoost", "K-Nearest neighbour", "SVM"]
-        regressionAlgorithm = ui.radio(listofRegressionAlgorithms, value="Linear")   ### Make functional
+        self.regressionAlgorithm = ui.radio(listofRegressionAlgorithms, value="Linear")   ### Make functional
         
         ui.markdown("#### Launch")
-        ui.button("Start!", on_click=exit)
+        ui.button("Start!", on_click=self.runML)
         
         ui.image()
         ui.run() 
@@ -148,6 +150,27 @@ class GUI():
 
     def refreshAll(self):
         self.dataExploration.refresh()
+    
+    # Updating selectors based on user input    
+    def updatePredictors(self, col, isChecked):
+        if isChecked:
+            self.selectedPredictors.append(col)
+        else:
+            self.selectedPredictors.remove(col)
+    
+    # Passing the settings to machine learning file        
+    def runML(self):
+        selectedAlgorithm = self.regressionAlgorithm.value 
+        print(f"The selected algorithm is: {selectedAlgorithm}") # Debugging
+        
+        selectedSplit = self.trainTestSplitSlider.value / 100
+        print(f"The selected training/testing split is: {selectedSplit}") # Debugging
+        
+        d = data.Data()
+        cleanedDF = d.getData()
+        
+        mlInstance = ml.ML(cleanedDF)
+        mlInstance.run(selectedAlgorithm, self.selectedPredictors, selectedSplit)
     
 if __name__ in {"__main__", "__mp_main__"}:
     print("Run main.py, this won't work")
