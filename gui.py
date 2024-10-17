@@ -177,7 +177,7 @@ class GUI():
         # region machine learning selectors
         
         # Updating selectors based on user input    
-        def updatePredictors(self, col, isChecked):
+        def updatePredictors(col, isChecked):
             if isChecked:
                 self.selectedPredictors.append(col)
             else:
