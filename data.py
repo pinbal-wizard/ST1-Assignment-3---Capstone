@@ -152,20 +152,21 @@ class Data():
 
     def __init__(self, mode = "Delete Rows") -> None:
         self.df = pd.read_csv("Australian Vehicle Prices.csv")
+
         print(f"{len(self.df)} : Rows before cleaning")
         self.cleanData(mode)
         print(f"{len(self.df)} : Rows after cleaning")
         self.convertColumnTypes()
         print(f"{len(self.df)} : Rows after Filtering")
         self.removeOutliers(method='IQR', columns=['Price'])  # We can decide on other outliers later, this is just a test
+        print(f"{len(self.df)} : Rows after Outlier Removal")
+
 
         
 if __name__ == "__main__":
     data = Data()
     # Function test
     # Seems to be working as intended, extreme outliers have been removed
-    print("Before outliers removal: ")
-    print(data.df.describe())
-    print("After removing outliers: ")
+    print(f"After removing outliers: {len(data.df)}")
     print(data.df.describe())
     print(data.df.dtypes)
