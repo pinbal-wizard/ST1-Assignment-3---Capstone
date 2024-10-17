@@ -10,36 +10,92 @@ Removal of outliers and missing values
 '''
 
 import pandas as pd
+import numpy as np
 from scipy import stats
+import warnings
 
-
-"""Modes are ["Delete Rows", "Median Value", "Mode Value", "Interpolate"]"""
+# Suppress pandas stupid "FutureWarning" stuff, it's my console not yours pandas.
+# Yes, I know it's 'bad pratice' but we gave pip versions in requirements.txt so use that if there's an issue.
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 class Data():
-    '''
-    ####################################################################################################################
-    This function needs to be changed to use the different modes
-    
-    '''
-    def cleanData(self, mode) -> None:
+    def cleanData(self, mode : str = "Delete Rows",) -> None:
         '''
         Cleans the CSV data by removing null values
-        Modes are ["Delete Rows", "Median Value", "Mode Value", "Interpolate"]
+
+        Parameters:
+            mode (str): ["Delete Rows", "Median Value", "Mode Value", "Interpolate"]
+
+        returns:
+            None
         '''
 
         print(mode, "Yay")
 
-        # Drop data thats 'N/A', 'Other' or '-'
-        def removeNull(self) -> None:
+        def removeNull(self, mode) -> None:
             '''
             Remove values that are 'Other', '-' or NULL
             '''
+
+            # If the value is in nanValues then convert it to NaN
+            nanValues = ["Other", "-", "NaN"]
             for name, col in self.df.items():
-                mask = self.df[name] == "Other" 
-                self.df = self.df[~mask]
-                mask = self.df[name] == "-"
-                self.df = self.df[~mask]
-                self.df.dropna(inplace=True)
+                self.df[name] = self.df[name].replace(nanValues, np.nan)
+
+            # Remove strings from cols before conversion or there will be issues
+            removeFluff(self)
+            # Columns such as 'Price' & 'Kilometers' can be converted to numeric to estimate values
+            colsToConvert = ['Kilometres', 'Price', 'Doors', 'Seats', 'CylindersinEngine', 'FuelConsumption']
+            for col in colsToConvert:
+                self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
+
+            if mode == "Delete Rows":
+                    self.df.dropna(inplace=True)
+
+            elif mode == "Median Value":  
+                    # Get colums that can be numeric for median NaN estimation
+                    NonNumericCols = self.df.select_dtypes(exclude='number').columns.tolist()
+                    numericCols = self.df.select_dtypes(include='number').columns.tolist()
+
+                    # Replace NaN values with median; drop columns if they cannot be filled
+                    for col in numericCols:
+                        median = self.df[col].median()
+                        if pd.notna(median):
+                            self.df[col].fillna(median, inplace=True)
+                        else:
+                            self.df.drop(columns=[col], inplace=True)
+
+                    # Drop NaN values in columns where they cannot be Numeric (e.g. Brand)
+                    self.df.dropna(subset=NonNumericCols, inplace=True)
+                    
+            elif mode == "Mode Value":
+                 # Get colums that can be numeric for mode NaN estimation
+                    NonNumericCols = self.df.select_dtypes(exclude='number').columns.tolist()
+                    numericCols = self.df.select_dtypes(include='number').columns.tolist()
+
+                    # Replace NaN values with mode; drop columns if they cannot be filled
+                    for col in numericCols:
+                        mode = self.df[col].mode()
+                        if not mode.empty:
+                            self.df[col].fillna(mode, inplace=True)
+                        else:
+                            self.df.drop(columns=[col], inplace=True)
+
+                    # Drop NaN values in columns where they cannot be Numeric (e.g. Brand)
+                    self.df.dropna(subset=NonNumericCols, inplace=True)
+
+            elif mode == "Interpolate":
+                    # Get colums that can be numeric for interpolate NaN estimation
+                    NonNumericCols = self.df.select_dtypes(exclude='number').columns.tolist()
+                    numericCols = self.df.select_dtypes(include='number').columns.tolist()
+
+                    # Replace NaN values with mode; drop columns if they cannot be filled
+                    for col in numericCols:
+                        self.df[col].interpolate(method='linear', inplace=True)
+
+                    # Drop NaN values in columns where they cannot be Numeric (e.g. Brand)
+                    self.df.dropna(subset=NonNumericCols, inplace=True)
+
 
         def removeFluff(self) -> None:
             '''
@@ -50,22 +106,20 @@ class Data():
             #self.df['Engine'] = self.df['Engine'].str.replace(' L', '')
             
 
-            self.df['FuelConsumption'] = self.df['FuelConsumption'].str.replace(' L / 100 km', '')
-            self.df['FuelConsumption'] = self.df['FuelConsumption'].astype(float)
+            self.df['FuelConsumption'] = self.df['FuelConsumption'].str.replace(' L / 100 km', '', regex=False)
+            self.df['FuelConsumption'] = pd.to_numeric(self.df['FuelConsumption'], errors='coerce')
 
-            self.df['CylindersinEngine'] = self.df['CylindersinEngine'].str.replace('cyl', '')
-            # Electric vechicals have no cylinders
-            self.df['CylindersinEngine'] = self.df['CylindersinEngine'].str.replace(' L', '')
-            self.df['CylindersinEngine'] = self.df['CylindersinEngine'].astype(int)
+            self.df['CylindersinEngine'] = self.df['CylindersinEngine'].str.replace(' cyl', '', regex=False)
+            self.df['CylindersinEngine'] = self.df['CylindersinEngine'].str.replace(' L', '', regex=False)
+            self.df['CylindersinEngine'] = pd.to_numeric(self.df['CylindersinEngine'], errors='coerce')
 
-            self.df['Doors'] = self.df['Doors'].str.replace(' Doors', '')
-            self.df['Doors'] = self.df['Doors'].astype(int)
+            self.df['Doors'] = self.df['Doors'].str.replace(' Doors', '', regex=False)
+            self.df['Doors'] = pd.to_numeric(self.df['Doors'], errors='coerce')
 
-            self.df['Seats'] = self.df['Seats'].str.replace(' Seats', '')
-            self.df['Seats'] = self.df['Seats'].astype(int)
+            self.df['Seats'] = self.df['Seats'].str.replace(' Seats', '', regex=False)
+            self.df['Seats'] = pd.to_numeric(self.df['Seats'], errors='coerce')
 
-        removeNull(self)
-        removeFluff(self)
+        removeNull(self, mode)
             
 
     def convertColumnTypes(self) -> None:
@@ -75,7 +129,7 @@ class Data():
         Returns:
             Nothing
         '''
-        self.df['Kilometres'] = self.df['Kilometres'].astype({'Kilometres': 'int32'})
+        self.df['Kilometres'] = self.df['Kilometres'].astype({'Kilometres': 'float'})
         self.df['CylindersinEngine'] = self.df['CylindersinEngine'].astype({'CylindersinEngine': 'int32'})
         self.df['Year'] = self.df['Year'].astype({'Year': 'int32'})
         
@@ -150,7 +204,7 @@ class Data():
             print(f"Invalid removal method: {method}")
 
 
-    def __init__(self, mode = "Delete Rows") -> None:
+    def __init__(self, mode = "Mode Value") -> None:
         self.df = pd.read_csv("Australian Vehicle Prices.csv")
 
         print(f"{len(self.df)} : Rows before cleaning")
