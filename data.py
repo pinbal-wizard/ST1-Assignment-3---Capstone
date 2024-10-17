@@ -30,8 +30,6 @@ class Data():
             None
         '''
 
-        print(mode, "Yay")
-
         def removeNull(self, mode) -> None:
             '''
             Remove values that are 'Other', '-' or NULL
@@ -203,6 +201,40 @@ class Data():
         else:
             print(f"Invalid removal method: {method}")
 
+    def rankColumn(self, column : str = None) -> None:
+        '''
+        Ranks column provided via their avg price
+        
+        Parameters:
+            column (str): Selected column to rank, default is None
+        '''
+        if column is None:
+            return
+        
+        avgPrice = self.df.groupby(column)['Price'].mean()
+        orderCol = avgPrice.sort_values().index.tolist()
+        self.df[column] = pd.Categorical(self.df[column], categories=orderCol, ordered=True)
+        self.df.sort_values(column, inplace=True)
+
+
+    def iterateOverColumns(self) -> None:
+        for col in ["Brand","Model","UsedOrNew","Transmission"]:
+            self.rankColumn(col)
+            self.df[col] = self.df[col].cat.codes
+
+    def mapRankToValue(self, column : str = None) -> dict:
+        '''
+        Gets the name back from the ranked value
+        
+        Parameters:
+            column (str): Selected column to get, default is None
+
+        Returns:
+            mapping (dict): Dictionary of {Rank, label}
+        '''
+        mapping = {code: label for code, label in enumerate(self.df[column].cat.categories)}
+        return mapping
+
 
     def __init__(self, mode = "Mode Value") -> None:
         self.df = pd.read_csv("Australian Vehicle Prices.csv")
@@ -214,6 +246,9 @@ class Data():
         print(f"{len(self.df)} : Rows after Filtering")
         self.removeOutliers(method='IQR', columns=['Price'])  # We can decide on other outliers later, this is just a test
         print(f"{len(self.df)} : Rows after Outlier Removal")
+        self.iterateOverColumns()
+
+
 
 
         
