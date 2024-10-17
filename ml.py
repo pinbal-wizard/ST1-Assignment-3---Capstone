@@ -19,7 +19,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.metrics import r2_score, mean_absolute_error
+from xgboost import XGBRegressor
 from data import Data
 
 class ML:
@@ -57,6 +59,8 @@ class ML:
             self.randomForest(features, split)
         elif algorithm == 'adaboost':
             self.adaBoost(features, split)
+        elif algorithm == 'xgboost':
+            self.XGBoost(features, split)
         else:
             print(f"Error: {algorithm} is not a supported algorithm.")
             
@@ -184,6 +188,26 @@ class ML:
         y_pred = model.predict(X_test)
         
         print(f"Adaboost Results")
+        self.evaluateModel(y_test, y_pred)
+        
+    def XGBoost(self, features: list, split: float):
+        '''
+        Train and evaluate using XGBoost
+        '''
+        X = self.df[features]
+        y = self.df['Price']
+
+        # Debug
+        print(f"Selected predictors: {list(X.columns)}")
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 1 - split, random_state = 42)
+
+        model = XGBRegressor(n_estimators = 100, random_state = 42)
+        model.fit(X_train, y_train)
+
+        y_pred = model.predict(X_test)
+
+        print(f"XGBoost results")
         self.evaluateModel(y_test, y_pred)
 
 
