@@ -4,22 +4,23 @@ File for anything to do with machine learning
 
 '''
         Rubric Parts
-Data conversion to numeric values for machine learning/predictive analysis.
+Data conversion to numeric values for machine learning/predictive analysis. (Somewhat done?)
 Training/testing sampling and K-fold cross validation
-Investigating multiple regression algorithms (Investigating)
-Selection of the best model (Finding)
+Investigating multiple regression algorithms (Investigating)    | These 2 things can be done using the output of each model
+Selection of the best model (Finding)                           | and changing how Nan values are handled when using the GUI
 Deployment of the best model in production
-Algorithms to be implemented: XGBoost, K-Nearest Neighbour, SVM
+Algorithms are all implemented
 '''
 
 import pandas as pd
 import numpy as np 
 from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
 from sklearn.neighbors import KNeighborsRegressor
+from sklearn.svm import SVR
 from sklearn.metrics import r2_score, mean_absolute_error
 from xgboost import XGBRegressor
 from data import Data
@@ -50,19 +51,28 @@ class ML:
         algorithm = algorithm.lower()
         
         # Dispatching
-        # Ugly af
-        if algorithm == 'linear':
-            self.linearRegression(features, split)
-        elif algorithm == 'decision tree':
-            self.decisionTree(features, split)
-        elif algorithm == 'random forest':
-            self.randomForest(features, split)
-        elif algorithm == 'adaboost':
-            self.adaBoost(features, split)
-        elif algorithm == 'xgboost':
-            self.XGBoost(features, split)
+        algorithms = {
+            'linear': self.linearRegression,
+            'decision tree': self.decisionTree,
+            'random forest': self.randomForest,
+            'adaboost': self.adaBoost,
+            'xgboost': self.XGBoost,
+            'k-nearest neighbour': self.KNNRegressor,
+            'svr': self.SVRRegression
+        }
+        
+        algorithmMethod = algorithms.get(algorithm)
+        
+        # Checking for NaN
+        self.df = self.df.dropna(subset=features + ['Price'])
+        # Debug
+        print(f"Remaining NaN values in features or target: \n{self.df.isna().sum()}")
+        
+        # Check if algorithm exist
+        if algorithmMethod:
+            algorithmMethod(features, split)
         else:
-            print(f"Error: {algorithm} is not a supported algorithm.")
+            print(f"Error: {algorithm} has not been implemented")
             
     #def convertStringColumns(self):
     #    '''
@@ -210,7 +220,64 @@ class ML:
         print(f"XGBoost results")
         self.evaluateModel(y_test, y_pred)
 
-
+    
+    def KNNRegressor(self, features: list, split: float, k = 5):
+        '''
+        Train and evaluate using K-nearest neighbours with k = 5 (can be changed)
+        
+        Params:
+        features (list): The predictors used by the user
+        split (float): The train/test split
+        k (int): K-Neighbours 
+        '''
+        
+        X= self.df[features]
+        y = self.df['Price']
+        
+        # Debug
+        print(f"Selected predictors: {list(X.columns)}")
+        
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split, random_state=42)
+        
+        model = KNeighborsRegressor(n_neighbors=k)
+        model.fit(X_train, y_train)
+        
+        y_pred = model.predict(X_test)
+        print("K-Nearest Neighbours Result")
+        self.evaluateModel(y_test, y_pred)
+        
+    def SVRRegression(self, features: list, split: float, kernel = 'linear', C = 1.0, epsilon = 0.1):
+        '''
+        Training and evaluating using SVR because this model is more suitable for prediction
+        It just explodes due to how large the data set is
+        
+        Params:
+        features (list): Selected predictors by the user
+        split (float): Test/train split specified by the user
+        kernel (str): Functions to deterine the similarity between input vectors. Default is linear, a dot product between input vectors. 
+        (kernel cont.) Determines how data input is transformed
+        
+        C (float): Regularization parameter. Controls the error tolerance of the data. High means less tolerance, low means more tolerance
+        epsilon (float): Defines a margin of tolerance where predictions are considered "close enough" to the actual values, and no penalty is applied
+        
+        Documentations: https://scikit-learn.org/1.5/modules/generated/sklearn.svm.SVR.html
+        '''
+        
+        X = self.df[features]
+        y = self.df['Price']
+        
+        # Debug
+        print(f"Selected predictors: {list(X.columns)}")
+        
+        X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=1-split, random_state=42)
+        
+        model = SVR(kernel=kernel, C=C, epsilon=epsilon)
+        model.fit(X_train, y_train)
+        
+        y_pred = model.predict(X_test)
+        print("SVR Result")
+        self.evaluateModel(y_test, y_pred)
+        
     def evaluateModel(self, y_test, y_pred):
         '''
         Evaluate the model using these metrics: R-squared, mean absolute error and mean absolute percentage error
@@ -222,22 +289,25 @@ class ML:
         mae = mean_absolute_error(y_test, y_pred)
         mape = np.mean(np.abs((y_test - y_pred) / y_test)) * 100 # MAPE in percentage
         
-        print(f"R-squared: {r2}")
-        print(f"Mean Absolute Error: {mae}")
-        print(f"Mean Absolute Percentage Error: {mape: .2f}%")
+        # List to store results
+        predictionResults = []
         
-        print("\nActual vs Predicted values:")
+        predictionResults.append(f"R-squared: {r2}")
+        predictionResults.append(f"Mean Absolute Error: {mae}")
+        predictionResults.append(f"Mean Absolute Percentage Error: {mape: .2f}%")
+        
+        predictionResults.append("\nActual vs Predicted values:")
         for i, (actual, predicted) in enumerate(zip(y_test, y_pred)):
             if i >= 10:
+                predictionResults.append(f"... And {len(y_test)} more predictions left")
                 break
-            print(f"Actual: {actual}$, Predicted: {predicted: .2f}$")
+            predictionResults.append(f"Actual: {actual}$, Predicted: {predicted: .2f}$")
+            
+        # Debugging    
+        for lines in predictionResults:
+            print(lines)
 
-        # Print how many lines are left
-        totalPredictions = len(y_test)
-        remainingLines = totalPredictions - min(10, totalPredictions)
-
-        if remainingLines > 0:
-            print(f"... And {remainingLines} more predictions left.")
+        return predictionResults
         
         
 if __name__ == "__main__":

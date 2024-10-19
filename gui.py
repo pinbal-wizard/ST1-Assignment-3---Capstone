@@ -198,7 +198,7 @@ class GUI():
         ui.label().bind_text_from(self.trainTestSplitSlider, 'value', backward=lambda v: f"Train {v}%, Test {100-v}%") 
         
         ui.markdown("#### Regression algorithms")
-        listofRegressionAlgorithms = ["Linear", "Decision Tree", "Random forest", "Adaboost", "XGBoost", "K-Nearest neighbour", "SVM"]
+        listofRegressionAlgorithms = ["Linear", "Decision Tree", "Random forest", "Adaboost", "XGBoost", "K-Nearest neighbour", "SVR"]
         self.regressionAlgorithm = ui.radio(listofRegressionAlgorithms, value="Linear")   ### Make functional
         
         # endregion
