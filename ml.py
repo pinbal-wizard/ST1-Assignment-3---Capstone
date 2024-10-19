@@ -5,7 +5,7 @@ File for anything to do with machine learning
 '''
         Rubric Parts
 Data conversion to numeric values for machine learning/predictive analysis. (Somewhat done?)
-Training/testing sampling and K-fold cross validation
+Training/testing sampling and K-fold cross validation (Done)
 Investigating multiple regression algorithms (Investigating)    | These 2 things can be done using the output of each model
 Selection of the best model (Finding)                           | and changing how Nan values are handled when using the GUI
 Deployment of the best model in production
@@ -66,7 +66,7 @@ class ML:
         # Checking for NaN
         self.df = self.df.dropna(subset=features + ['Price'])
         # Debug
-        print(f"Remaining NaN values in features or target: \n{self.df.isna().sum()}")
+        print(f"\nRemaining NaN values in features or target: \n{self.df.isna().sum()}")
         
         # Check if algorithm exist
         if algorithmMethod:
@@ -102,7 +102,7 @@ class ML:
         y = self.df['Price']  # 'Price' as the target variable
         
         # Debug
-        print(f"Selected predictors: {list(X.columns)}")
+        print(f"\nSelected predictors: {list(X.columns)}")
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split, random_state=42)
         
@@ -113,6 +113,7 @@ class ML:
         
         print(f"Linear Regression Results")
         self.evaluateModel(y_test, y_pred)
+        self.performCrossValidation(model, X_train, y_train)
             
     def decisionTree(self, features: list, split: float):
         '''
@@ -130,7 +131,7 @@ class ML:
         y = self.df['Price']
         
         # Debug
-        print(f"Selected predictors: {list(X.columns)}")
+        print(f"\nSelected predictors: {list(X.columns)}")
         
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size= 1 - split, random_state = 42)
 
@@ -141,6 +142,7 @@ class ML:
         
         print(f"Decision Tree results")
         self.evaluateModel(y_test, y_pred)
+        self.performCrossValidation(model, X_train, y_train)
 
     def randomForest(self, features: list, split: float):
         '''
@@ -158,7 +160,7 @@ class ML:
         y = self.df['Price']
         
         # Debug
-        print(f"Selected predictors: {list(X.columns)}")
+        print(f"\nSelected predictors: {list(X.columns)}")
         
         X_train, X_test, y_train, y_test = train_test_split(X, y, train_size= 1 - split, random_state = 42)
         
@@ -169,6 +171,7 @@ class ML:
         
         print(f"Random Forest results")
         self.evaluateModel(y_test, y_pred)
+        self.performCrossValidation(model, X_train, y_train)
         
     def adaBoost(self, features: list, split: float):
         '''
@@ -186,7 +189,7 @@ class ML:
         y = self.df['Price']
         
         # Debug
-        print(f"Selected predictors: {list(X.columns)}")
+        print(f"\nSelected predictors: {list(X.columns)}")
         
         X_train, X_test, y_train, y_test = train_test_split(X, y, train_size = 1 - split, random_state = 42)
         
@@ -199,6 +202,7 @@ class ML:
         
         print(f"Adaboost Results")
         self.evaluateModel(y_test, y_pred)
+        self.performCrossValidation(model, X_train, y_train)
         
     def XGBoost(self, features: list, split: float):
         '''
@@ -208,7 +212,7 @@ class ML:
         y = self.df['Price']
 
         # Debug
-        print(f"Selected predictors: {list(X.columns)}")
+        print(f"\nSelected predictors: {list(X.columns)}")
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 1 - split, random_state = 42)
 
@@ -219,8 +223,8 @@ class ML:
 
         print(f"XGBoost results")
         self.evaluateModel(y_test, y_pred)
+        self.performCrossValidation(model, X_train, y_train)
 
-    
     def KNNRegressor(self, features: list, split: float, k = 5):
         '''
         Train and evaluate using K-nearest neighbours with k = 5 (can be changed)
@@ -231,11 +235,11 @@ class ML:
         k (int): K-Neighbours 
         '''
         
-        X= self.df[features]
+        X = self.df[features]
         y = self.df['Price']
         
         # Debug
-        print(f"Selected predictors: {list(X.columns)}")
+        print(f"\nSelected predictors: {list(X.columns)}")
         
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split, random_state=42)
         
@@ -245,6 +249,7 @@ class ML:
         y_pred = model.predict(X_test)
         print("K-Nearest Neighbours Result")
         self.evaluateModel(y_test, y_pred)
+        self.performCrossValidation(model, X_train, y_train)
         
     def SVRRegression(self, features: list, split: float, kernel = 'linear', C = 1.0, epsilon = 0.1):
         '''
@@ -267,7 +272,7 @@ class ML:
         y = self.df['Price']
         
         # Debug
-        print(f"Selected predictors: {list(X.columns)}")
+        print(f"\nSelected predictors: {list(X.columns)}")
         
         X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=1-split, random_state=42)
         
@@ -277,6 +282,7 @@ class ML:
         y_pred = model.predict(X_test)
         print("SVR Result")
         self.evaluateModel(y_test, y_pred)
+        self.performCrossValidation(model, X_train, y_train)
         
     def evaluateModel(self, y_test, y_pred):
         '''
@@ -308,6 +314,38 @@ class ML:
             print(lines)
 
         return predictionResults
+    
+    def performCrossValidation(self, model, X_train, y_train, k_folds = 5):
+        '''
+        Perform a K-fold cross validation on a model
+        
+        Params:
+        model: The model to be evaluated
+        X_train (dataframe): The training set
+        y_train (series): The target set (in this case, 'Price')
+        k_folds (int): Number of folds to do cross validation, default is 5
+        '''
+        
+        print(f"Performing {k_folds}-folds cross validation")
+        cvScores = cross_val_score(model, X_train, y_train, cv=k_folds, scoring='r2')
+        cvScoresRounded = np.round(cvScores, 2)
+        avgScore = round(np.mean(cvScores), 2)
+        
+        # list to store the output
+        cvResult = []
+        
+        # Append the rounded cross validation score
+        for i, score in enumerate(cvScoresRounded):
+            cvResult.append(f"Fold {i+1} R-squared: {score}")
+        
+        # Append the average score    
+        cvResult.append(f"Average R-squared across {k_folds}: {avgScore}")
+        
+        # Debug
+        for lines in cvResult:
+            print(lines)
+            
+        return cvResult
         
         
 if __name__ == "__main__":
