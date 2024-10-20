@@ -135,7 +135,21 @@ class Data():
 
         
         self.df.dropna(subset=['Price'],inplace=True)
-        self.df['Price'] = self.df['Price'].astype('int32')
+
+        # Convert to category
+        self.df['Brand'] = self.df['Brand'].astype("category")
+        self.df['Model'] = self.df['Model'].astype("category")
+        self.df['Car/Suv'] = self.df['Car/Suv'].astype("category")
+        self.df['Title'] = self.df['Title'].astype("category")
+        self.df['UsedOrNew'] = self.df['UsedOrNew'].astype("category")
+        self.df['Transmission'] = self.df['Transmission'].astype("category")
+        self.df['Engine'] = self.df['Engine'].astype("category")
+        self.df['DriveType'] = self.df['DriveType'].astype("category")
+        self.df['FuelType'] = self.df['FuelType'].astype("category")
+        self.df['ColourExtInt'] = self.df['ColourExtInt'].astype("category")
+        self.df['Location'] = self.df['Location'].astype("category")
+        self.df['BodyType'] = self.df['BodyType'].astype("category")
+
         
 
     def getData(self):
@@ -218,6 +232,7 @@ class Data():
 
 
     def iterateOverColumns(self) -> None:
+        raise NotImplementedError
         for col in ["Brand","Model","UsedOrNew","Transmission"]:
             self.rankColumn(col)
             self.df[col] = self.df[col].cat.codes
@@ -241,12 +256,14 @@ class Data():
 
         print(f"{len(self.df)} : Rows before cleaning")
         self.cleanData(mode)
-        print(f"{len(self.df)} : Rows after cleaning")
+        #print(f"{len(self.df)} : Rows after fluff removed")
         self.convertColumnTypes()
-        print(f"{len(self.df)} : Rows after Filtering")
+        #print(f"{len(self.df)} : Rows after Filtering")
         self.removeOutliers(method='IQR', columns=['Price'])  # We can decide on other outliers later, this is just a test
-        print(f"{len(self.df)} : Rows after Outlier Removal")
-        self.iterateOverColumns()
+        #print(f"{len(self.df)} : Rows after Outlier Removal")
+        #self.iterateOverColumns() removed to keep cols as categories
+        print(f"{len(self.df)} : Rows after cleaning")
+
 
 
 
