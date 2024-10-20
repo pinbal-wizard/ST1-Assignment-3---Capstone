@@ -62,7 +62,7 @@ class ML:
         }
         
         algorithmMethod = algorithms.get(algorithm)
-        
+      
         # Checking for NaN
         self.df = self.df.dropna(subset=features + ['Price'])
         # Debug
@@ -216,7 +216,7 @@ class ML:
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 1 - split, random_state = 42)
 
-        model = XGBRegressor(n_estimators = 100, random_state = 42)
+        model = XGBRegressor(n_estimators = 100, random_state = 42,enable_categorical=True)  ############################## apparently enable_categorical=True is experimental so GL
         model.fit(X_train, y_train)
 
         y_pred = model.predict(X_test)
