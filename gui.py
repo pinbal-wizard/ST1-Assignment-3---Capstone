@@ -37,7 +37,7 @@ class GUI():
         a = analysis.Analysis(d)
         self.df = d.getData()
         
-        app.storage.general['DataExploration'] = "Price"
+        app.storage.general['DataExploration'] = "Kilometres"
 
         with ui.header():
             ui.markdown("# **Software Technology Group 42**")
@@ -96,6 +96,10 @@ class GUI():
         ## I can see no way that using strings and not enums or something can go wrong
         self.missingValuesRadio = ui.radio(["Delete Rows", "Median Value", "Mode Value", "Interpolate"], value="Delete Rows",on_change=missingValuesRefresh)   ### Make functional
 
+        ui.markdown("##### Observations")
+        ui.markdown("> We have decided that we will remove our outlier prior to where it was expected as our large dataset does have quite a few\
+                     Outliers however with the above Radio you can change how those outliers are removed.")
+
         # endregion
 
         # region dist target var
@@ -143,35 +147,44 @@ class GUI():
                     > + Seats (Quantitative)")
         
         # endregion
-        
-        # region Visual EDA
-        ui.markdown("#### Visual Exploratory Data Analysis")
-        # TODO This requires visualising distribution of all the categorical predictor variables in the data using bar plots, and continuous predictor variables using histograms.
-        ui.skeleton().classes('w-full')        ### Replace with exploration of data but using graphs and shit
-        
-        # endregion
-        
-        # region outliers
-        ui.markdown("#### Outlier analysis")
-        # TODO Outliers have been removed but also display info about what was removed
-        ui.skeleton().classes('w-full')        ### Find outliers
-        
-        # endregion
+
         
         # region correlation analysis
-        # TODO find r values for the cols
         # When the target variable is continuous, and the predictor variable is categorical we analyse the relation using box plots. 
         ui.markdown("#### Visual and statistic correlation analysis")
-        self.selectedCorrelation = ui.select(list(self.df.columns),value=app.storage.general['DataExploration'],on_change=self.correlationAnalysis.refresh)
+        self.selectedCorrelation = ui.select(list(self.df.loc[:, self.df.columns != 'Price'].select_dtypes(include=np.number))
+                                             ,value=app.storage.general['DataExploration'],on_change=self.correlationAnalysis.refresh)
         self.correlationAnalysis()
+
+        correlationDF = self.df.loc[:, self.df.columns].select_dtypes(include=np.number).corr()
+        correlationDF.insert(0,' ',correlationDF.columns)
+        correlationDF.round(2)
+        ui.table.from_pandas(correlationDF)
+
+        ui.markdown("##### Observations")
+        ui.markdown("> We are calculating the Pearson's correlation coefficient. This value can be calculated only between two numeric columns\
+                     A Correlation value between [-1,0) means inversely proportional, the scatter plot will show a downward trend\
+                     A Correlation value between (0,1] means directly proportional, the scatter plot will show a upward trend\
+                     Correlation near 0 means No relationship, the scatter plot will show no clear trend.\
+                     If the Correlation value is between two variables is > 0.5 in magnitude, it indicates good relationship the sign does not matter")
+        ui.markdown("> From these tests we can confirm:   \n\
+                     > Kilometers and Year have a strong relation  \n\
+                     > The fuel consumption and the number of cylinders in the engine have a strong relation   \n\
+                     > And that the price and the year have a strong relation")
+        #TODO maybe add sum more stuff here
         
         # endregion
         
         # region ANOVA tests
-        # TODO ANOVA tests for categorical predictors
         ui.markdown("#### Statistical feature selection (categorical vs. continuous) using ANOVA test")
-        ui.skeleton().classes('w-full')      ### idk go figure out yourself  its step 9
-        
+        self.selectedANOVA = ui.select(list(self.df.loc[:, self.df.columns != 'Price'].select_dtypes(exclude=np.number))
+                                      ,value="Transmission",on_change=self.ANOVAAnalysis.refresh)
+        self.ANOVAAnalysis()
+
+        #TODO add more
+        ui.markdown("##### Observations")
+        ui.markdown("> Some of the columns are not available as there are too any unique entries to graph them.   Rest assured they are calculated nevertheless")
+
         # endregion
         
         # region machine learning selectors
@@ -209,19 +222,31 @@ class GUI():
         ui.image()
         ui.run() 
 
+
     @ui.refreshable
     def correlationAnalysis(self) -> None:
         text:str = self.selectedCorrelation.value
-        print(text)
-        if is_numeric_dtype(self.df[text]):
-            with ui.pyplot() as fig:  ### Replace With Histogram of the data        
-                plt.ylabel("Price")
-                plt.xlabel(text.capitalize())
-                plt.scatter(self.df[text],self.df["Price"],s=0.5)  
-        else:
-            ui.label(text + " Word")
+
+        with ui.pyplot() as fig:  ### Replace With Histogram of the data        
+            plt.ylabel("Price")
+            plt.xlabel(text.capitalize())
+            plt.scatter(self.df[text],self.df["Price"],s=0.5)  
 
 
+    @ui.refreshable
+    def ANOVAAnalysis(self) -> None:
+        text:str = self.selectedANOVA.value
+
+        if text in ["Model","Title", "Car/Suv", "ColourExtInt","Location"]:
+            ui.markdown(f"> Too many unique entries in {text}")
+            return
+
+        with ui.pyplot() as ANOVA:
+            ANOVA = plt.subplot()
+ 
+            self.df.boxplot(column='Price',by=text, ax=ANOVA)
+            ANOVA.set_title(f" ")
+            
 
     @ui.refreshable
     def dataExploration(self) -> None:
@@ -268,8 +293,7 @@ class GUI():
         selectedSplit = self.trainTestSplitSlider.value / 100
         print(f"The selected training/testing split is: {selectedSplit}") # Debugging
         
-        d = data.Data()
-        cleanedDF = d.getData()
+        cleanedDF = self.df
         
         mlInstance = ml.ML(cleanedDF)
         mlInstance.run(selectedAlgorithm, self.selectedPredictors, selectedSplit)
