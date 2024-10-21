@@ -50,14 +50,18 @@ class ML:
         
         # List to store evaluation results
         results = []
+        resultsButAsADict = {}
         
         for algoName, algoMethod in algorithms.items():
             print(f"\nRunning {algoName.capitalize()}... ")
             metrics = algoMethod(features, split) # Capturing all metrics
             results.append((algoName, metrics))
+            resultsButAsADict[algoName] = metrics
             
         bestAlgo = self.compareAlgorithms(results)
         print(f"\nThe best performing algorithm: {bestAlgo.capitalize()}")
+
+        return resultsButAsADict, bestAlgo
         
     def compareAlgorithms(self, results: list):
         '''
@@ -75,8 +79,8 @@ class ML:
         
         for algoName, metrics in results:
             r2, mae, mape, avg_cv_r2 = metrics # avg_cv_r2: average R-squared from cross validation
-            print(f"\nEvaluation metrics for {algoName.capitalize()}:")
-            print(f"R-squared: {r2}, MAE: {mae}, MAPE: {mape: .2f}%, Average CV R-squared: {avg_cv_r2}")
+            #print(f"\nEvaluation metrics for {algoName.capitalize()}:")
+            #print(f"R-squared: {r2}, MAE: {mae}, MAPE: {mape: .2f}%, Average CV R-squared: {avg_cv_r2}")
             
             # Compare metrics, prio: MAPE and R-squared
             # Float values can be changed depending on our priority
@@ -102,16 +106,16 @@ class ML:
         mape = np.mean(np.abs((y_test - y_pred) / y_test)) * 100 # MAPE in percentage
         
         
-        print(f"R-squared: {r2}")
-        print(f"Mean Absolute Error: {mae}")
-        print(f"Mean Absolute Percentage Error: {mape: .2f}%")
+        #print(f"R-squared: {r2}")
+        #print(f"Mean Absolute Error: {mae}")
+        #print(f"Mean Absolute Percentage Error: {mape: .2f}%")
         
-        print("\nActual vs Predicted values:")
+        #print("\nActual vs Predicted values:")
         for i, (actual, predicted) in enumerate(zip(y_test, y_pred)):
             if i >= 10:
-                print(f"... And {len(y_test)} more predictions left")
+                #print(f"... And {len(y_test)} more predictions left")
                 break
-            print(f"Actual: {actual}$, Predicted: {predicted: .2f}$")
+            #print(f"Actual: {actual}$, Predicted: {predicted: .2f}$")
         
         # Perform cross validation to get average cross validation r-squared    
         avg_cv_r2 = self.performCrossValidation(model, X_train, y_train)
@@ -129,17 +133,18 @@ class ML:
         k_folds (int): Number of folds to do cross validation, default is 5
         '''
         
-        print(f"Performing {k_folds}-folds cross validation")
+        #print(f"Performing {k_folds}-folds cross validation")
         cvScores = cross_val_score(model, X_train, y_train, cv=k_folds, scoring='r2')
         cvScoresRounded = np.round(cvScores, 2)
         avg_cv_r2 = round(np.mean(cvScores), 2)
         
         # Print R-squared across each fold
         for i, score in enumerate(cvScoresRounded):
-            print(f"Fold {i+1} R-squared: {score}")
+            pass
+            #print(f"Fold {i+1} R-squared: {score}")
         
         # Print average score   
-        print(f"Average R-squared across {k_folds} folds: {avg_cv_r2}")
+        #print(f"Average R-squared across {k_folds} folds: {avg_cv_r2}")
         
         return avg_cv_r2
 

@@ -28,6 +28,8 @@ import pandas as pd
 from pandas.api.types import is_string_dtype
 from pandas.api.types import is_numeric_dtype
 
+from scipy.stats import f_oneway
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -81,7 +83,7 @@ class GUI():
                     ui.label(colType).props('inline font-size=100')
 
         ui.markdown("> ##### Observations\n A few of the colums are int32 or float64 these are our numbers, or quantitative colums. \
-                    There are also colums that have a type 'object' these are our catagorical types as they are strings.")
+                    There are also colums that have a type 'category' these are our catagorical types.")
                 
         # endregion
         
@@ -183,8 +185,41 @@ class GUI():
 
         #TODO add more
         ui.markdown("##### Observations")
-        ui.markdown("> Some of the columns are not available as there are too any unique entries to graph them.   Rest assured they are calculated nevertheless")
+        ui.markdown("> Some of the columns are not available as there are too any unique entries to graph them.   Rest assured they are calculated nevertheless.    \n\
+                    We are looking for Graphs where as the categorical variable (X-axis) changes Price (Y-axis) also changes, this shows that\
+                    they are related.")
+        
+        # Defining a function to find the statistical relationship with all the categorical variables
+        def FunctionAnova(inpData, TargetVariable, CategoricalPredictorList):
+            # Creating an empty list of final selected predictors
+            SelectedPredictors=[]
 
+            for predictor in CategoricalPredictorList:
+                CategoryGroupLists=inpData.groupby(predictor)[TargetVariable].apply(list)
+                AnovaResults = f_oneway(*CategoryGroupLists)
+
+                # If the ANOVA P-Value is <0.05, that means we reject H0
+                if (AnovaResults[1] < 0.05):
+                    SelectedPredictors.append([predictor,AnovaResults[1]])
+
+
+            return(SelectedPredictors)
+        
+        CategoricalPredictorList=list(self.df.loc[:, self.df.columns != 'Price'].select_dtypes(exclude=np.number))
+
+        temp = FunctionAnova(inpData=self.df,
+              TargetVariable='Price',
+              CategoricalPredictorList=CategoricalPredictorList)
+        
+        ui.markdown("##### Results of ANOVA testing")
+        with ui.list() as table:
+            for cat in temp:
+                ui.item(f"Predictor Name: {cat[0]}   P-Value: {cat[1]}")
+
+        ui.markdown("##### Observations")
+        ui.markdown("> Only predictors with less than a 0.05 P-value are chosen. A p-value, or probability value, is a number describing the likelihood of obtaining the observed data under the null hypothesis of a statistical test\
+                    [Source](https://www.investopedia.com/terms/p/p-value.asp). These predictors are: UsedOrNew, Transmission, DriveType, FuelType, and BodyType.")
+            
         # endregion
         
         # region machine learning selectors
@@ -217,9 +252,10 @@ class GUI():
         # endregion
         
         ui.markdown("#### Launch")
-        ui.button("Start!", on_click=self.runML)
+        ui.button("Start!", on_click=lambda: self.runML.refresh(type=0))
+
+        self.runML(type=1)
         
-        ui.image()
         ui.run() 
 
 
@@ -266,35 +302,41 @@ class GUI():
             ui.markdown("**Median**")
             ui.markdown("**Mode**")
 
-            if self.df[text].dtype == object:
+            if self.df[text].dtype == 'category':
                 ui.label("N\A")
+                ui.label("N\A")
+                ui.label("N\A")
+                return
             else:
                 ui.label(f"{self.df[text].mean():.2f}")
-
-            if self.df[text].dtype == object:
-                ui.label("N\A")
-            else:
                 ui.label(f"{self.df[text].median():.2f}")
-
-            if self.df[text].dtype == object:
-                ui.label("N\A")
-            else:
                 ui.label(f"{self.df[text].mode()[0]}")
 
 
     def refreshAll(self):
         self.dataExploration.refresh()
     
-    # Passing the settings to machine learning file        
-    def runML(self):
+    # Passing the settings to machine learning file  
+    @ui.refreshable    
+    def runML(self, type=0):
+        if type==1:
+                print("type is 1")
+                ui.markdown("Please Click Start")
+                return
         selectedSplit = self.trainTestSplitSlider.value / 100
-        print(f"The selected training/testing split is: {selectedSplit}") # Debugging
+        #print(f"The selected training/testing split is: {selectedSplit}") # Debugging
         
         cleanedDF = self.df
         
         mlInstance = ml.ML(cleanedDF)
-        mlInstance.runAllAlgorithm(self.selectedPredictors, selectedSplit)
-    
+        results, best = mlInstance.runAllAlgorithm(self.selectedPredictors, selectedSplit)
+
+        ui.markdown("##### Results")
+        ui.markdown(f"> The best performing algorithm was: {best.capitalize()}    \n\
+                    It had a R^2 value of {results[best][0]:.5f}   \n\
+                    It had a MAPE of {results[best][2]:.5f}%")
+            
+
 if __name__ in {"__main__", "__mp_main__"}:
     print("Run main.py, this won't work")
     print("Thank you")
