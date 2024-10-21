@@ -93,6 +93,7 @@ class Data():
 
                     # Drop NaN values in columns where they cannot be Numeric (e.g. Brand)
                     self.df.dropna(subset=NonNumericCols, inplace=True)
+            self.df.dropna(inplace=True)
 
 
         def removeFluff(self) -> None:
@@ -276,3 +277,4 @@ if __name__ == "__main__":
     print(f"After removing outliers: {len(data.df)}")
     print(data.df.describe())
     print(data.df.dtypes)
+    print(data.df.isna().sum())
