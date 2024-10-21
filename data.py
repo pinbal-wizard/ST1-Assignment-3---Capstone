@@ -36,7 +36,7 @@ class Data():
             '''
 
             # If the value is in nanValues then convert it to NaN
-            nanValues = ["Other", "-", "NaN"]
+            nanValues = ["Other", "-", "NaN", "- / -"]
             for name, col in self.df.items():
                 self.df[name] = self.df[name].replace(nanValues, np.nan)
 
@@ -79,8 +79,11 @@ class Data():
                         else:
                             self.df.drop(columns=[col], inplace=True)
 
+
                     # Drop NaN values in columns where they cannot be Numeric (e.g. Brand)
                     self.df.dropna(subset=NonNumericCols, inplace=True)
+                    # Drop any NaN values that didn't get passed the mode cleaning process (We did all we can)
+                    self.df.dropna(inplace=True)
 
             elif mode == "Interpolate":
                     # Get colums that can be numeric for interpolate NaN estimation
@@ -93,7 +96,6 @@ class Data():
 
                     # Drop NaN values in columns where they cannot be Numeric (e.g. Brand)
                     self.df.dropna(subset=NonNumericCols, inplace=True)
-            self.df.dropna(inplace=True)
 
 
         def removeFluff(self) -> None:
@@ -252,16 +254,16 @@ class Data():
         return mapping
 
 
-    def __init__(self, mode = "Mode Value") -> None:
+    def __init__(self, mode = "Delete Rows") -> None:
         self.df = pd.read_csv("Australian Vehicle Prices.csv")
-
+        #print("Null values before cleaning", self.df['Kilometres'].isna().sum())
         print(f"{len(self.df)} : Rows before cleaning")
         self.cleanData(mode)
-        #print(f"{len(self.df)} : Rows after fluff removed")
+        print(f"{len(self.df)} : Rows after fluff removed")
         self.convertColumnTypes()
-        #print(f"{len(self.df)} : Rows after Filtering")
+        print(f"{len(self.df)} : Rows after Filtering")
         self.removeOutliers(method='IQR', columns=['Price'])  # We can decide on other outliers later, this is just a test
-        #print(f"{len(self.df)} : Rows after Outlier Removal")
+        print(f"{len(self.df)} : Rows after Outlier Removal")
         #self.iterateOverColumns() removed to keep cols as categories
         print(f"{len(self.df)} : Rows after cleaning")
 
@@ -274,7 +276,9 @@ if __name__ == "__main__":
     data = Data()
     # Function test
     # Seems to be working as intended, extreme outliers have been removed
-    print(f"After removing outliers: {len(data.df)}")
-    print(data.df.describe())
-    print(data.df.dtypes)
-    print(data.df.isna().sum())
+    #print(f"After removing outliers: {len(data.df)}")
+    #print(data.df.describe())
+    #print(data.df.dtypes)
+    #print(data.df.isna().sum())
+    #print("Null values after cleaning", data.df['Kilometres'].isna().sum())
+
