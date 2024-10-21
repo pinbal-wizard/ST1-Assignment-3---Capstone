@@ -14,7 +14,6 @@ Algorithms are all implemented
 
 import pandas as pd
 import numpy as np 
-from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
@@ -28,27 +27,15 @@ from data import Data
 class ML:
     def __init__(self, df: pd.DataFrame) -> None:
         self.df = df
-        # Can uncomment if you want to see how data is before and after conversion
-        #print("Data before type conversion: ")
-        #print(self.df.head(20))
-        #
-        #self.convertStringColumns()
-        #
-        #print("Data after type conversion: ")
-        #print(self.df.head(20))
     
-    def run(self, algorithm: str, features: list, split: float):
+    def runAllAlgorithm(self, features: list, split: float):
         '''
-        This method acts as a controller to take the settings from the GUI and give them to the respective model
+        Run all algorithm and select the best performing one based on R-squared score
 
         Parameters:
-        algorithm (str): The selected algorithm
         features (list): List of feature columns selected by the user
         split (float): The train/test split used selected by the user
-        max_lines (int): Maximum lines to print out
         '''
-        
-        algorithm = algorithm.lower()
         
         # Dispatching
         algorithms = {
@@ -61,31 +48,100 @@ class ML:
             'svr': self.SVRRegression
         }
         
-        algorithmMethod = algorithms.get(algorithm)
-      
-        # Checking for NaN
-        self.df = self.df.dropna(subset=features + ['Price'])
-        # Debug
-        print(f"\nRemaining NaN values in features or target: \n{self.df.isna().sum()}")
+        # List to store evaluation results
+        results = []
         
-        # Check if algorithm exist
-        if algorithmMethod:
-            algorithmMethod(features, split)
-        else:
-            print(f"Error: {algorithm} has not been implemented")
+        for algoName, algoMethod in algorithms.items():
+            print(f"\nRunning {algoName.capitalize()}... ")
+            metrics = algoMethod(features, split) # Capturing all metrics
+            results.append((algoName, metrics))
             
-    #def convertStringColumns(self):
-    #    '''
-    #    Attempts to convert non-numerical values into numerical using Label Encoding
-    #    Skips columns that are already in numerical
-    #    '''
-    #    # This works but struggles with nomial data, i.e. brands, locations, exterior/interior etc.
-    #    # Will introduct bias in data, because the model will compare the numerical values as lower/higher
-    #    nonNumericColumns = self.df.select_dtypes(exclude=['int', 'float']).columns
-    #    
-    #    for col in nonNumericColumns:
-    #        le = LabelEncoder()
-    #        self.df[col] = le.fit_transform(self.df[col])
+        bestAlgo = self.compareAlgorithms(results)
+        print(f"\nThe best performing algorithm: {bestAlgo.capitalize()}")
+        
+    def compareAlgorithms(self, results: list):
+        '''
+        Compare and output the best algorithm based R-squared, MAE, MAPE, cross validation results
+        Print the best performing algorithm based on lowest MAPE and highest R-squared
+
+        Params:
+        results (list): Tuple of algorithm name and metrics
+        
+        Returns:
+        str: Name of the best algo
+        '''
+        
+        rankedResults = []
+        
+        for algoName, metrics in results:
+            r2, mae, mape, avg_cv_r2 = metrics # avg_cv_r2: average R-squared from cross validation
+            print(f"\nEvaluation metrics for {algoName.capitalize()}:")
+            print(f"R-squared: {r2}, MAE: {mae}, MAPE: {mape: .2f}%, Average CV R-squared: {avg_cv_r2}")
+            
+            # Compare metrics, prio: MAPE and R-squared
+            # Float values can be changed depending on our priority
+            # Current priority: 50% for R-squared, 25% for MAE and MAPE
+            score = (0.5 * r2) + (0.25 * (1 / mae)) + (0.25 * (1 / mape))
+            
+            rankedResults.append((algoName, score))
+        
+        # Rank by highest score    
+        rankedResults.sort(key=lambda x: x[1], reverse=True)
+        
+        return rankedResults[0][0]
+    
+    def evaluateModel(self, y_test, y_pred, model, X_train, y_train):
+        '''
+        Evaluate the model using these metrics: R-squared, mean absolute error and mean absolute percentage error
+        Mean absolute percentage error (MAPE): Percentage of how "off" the prediction is. 
+        Ex: 10% MAPE means the prediction is off by 10%
+        '''
+        
+        r2 = r2_score(y_test, y_pred)
+        mae = mean_absolute_error(y_test, y_pred)
+        mape = np.mean(np.abs((y_test - y_pred) / y_test)) * 100 # MAPE in percentage
+        
+        
+        print(f"R-squared: {r2}")
+        print(f"Mean Absolute Error: {mae}")
+        print(f"Mean Absolute Percentage Error: {mape: .2f}%")
+        
+        print("\nActual vs Predicted values:")
+        for i, (actual, predicted) in enumerate(zip(y_test, y_pred)):
+            if i >= 10:
+                print(f"... And {len(y_test)} more predictions left")
+                break
+            print(f"Actual: {actual}$, Predicted: {predicted: .2f}$")
+        
+        # Perform cross validation to get average cross validation r-squared    
+        avg_cv_r2 = self.performCrossValidation(model, X_train, y_train)
+        
+        return r2, mae, mape, avg_cv_r2
+    
+    def performCrossValidation(self, model, X_train, y_train, k_folds = 5):
+        '''
+        Perform a K-fold cross validation on a model
+        
+        Params:
+        model: The model to be evaluated
+        X_train (dataframe): The training set
+        y_train (series): The target set (in this case, 'Price')
+        k_folds (int): Number of folds to do cross validation, default is 5
+        '''
+        
+        print(f"Performing {k_folds}-folds cross validation")
+        cvScores = cross_val_score(model, X_train, y_train, cv=k_folds, scoring='r2')
+        cvScoresRounded = np.round(cvScores, 2)
+        avg_cv_r2 = round(np.mean(cvScores), 2)
+        
+        # Print R-squared across each fold
+        for i, score in enumerate(cvScoresRounded):
+            print(f"Fold {i+1} R-squared: {score}")
+        
+        # Print average score   
+        print(f"Average R-squared across {k_folds} folds: {avg_cv_r2}")
+        
+        return avg_cv_r2
 
     def linearRegression(self, features: list, split: float):
         '''
@@ -117,8 +173,7 @@ class ML:
         y_pred = model.predict(X_test)
         
         print(f"Linear Regression Results")
-        self.evaluateModel(y_test, y_pred)
-        self.performCrossValidation(model, X_train, y_train)
+        return self.evaluateModel(y_test, y_pred, model, X_train, y_train)
             
     def decisionTree(self, features: list, split: float):
         '''
@@ -150,8 +205,7 @@ class ML:
         y_pred = model.predict(X_test)
         
         print(f"Decision Tree results")
-        self.evaluateModel(y_test, y_pred)
-        self.performCrossValidation(model, X_train, y_train)
+        return self.evaluateModel(y_test, y_pred, model, X_train, y_train)
 
     def randomForest(self, features: list, split: float):
         '''
@@ -183,8 +237,7 @@ class ML:
         y_pred = model.predict(X_test)
         
         print(f"Random Forest results")
-        self.evaluateModel(y_test, y_pred)
-        self.performCrossValidation(model, X_train, y_train)
+        return self.evaluateModel(y_test, y_pred, model, X_train, y_train)
         
     def adaBoost(self, features: list, split: float):
         '''
@@ -218,8 +271,7 @@ class ML:
         y_pred = model.predict(X_test)
         
         print(f"Adaboost Results")
-        self.evaluateModel(y_test, y_pred)
-        self.performCrossValidation(model, X_train, y_train)
+        return self.evaluateModel(y_test, y_pred, model, X_train, y_train)
         
     def XGBoost(self, features: list, split: float):
         '''
@@ -239,8 +291,7 @@ class ML:
         y_pred = model.predict(X_test)
 
         print(f"XGBoost results")
-        self.evaluateModel(y_test, y_pred)
-        self.performCrossValidation(model, X_train, y_train)
+        return self.evaluateModel(y_test, y_pred, model, X_train, y_train)
 
     def KNNRegressor(self, features: list, split: float, k = 5):
         '''
@@ -269,9 +320,9 @@ class ML:
         
         y_pred = model.predict(X_test)
         print("K-Nearest Neighbours Result")
-        self.evaluateModel(y_test, y_pred)
-        self.performCrossValidation(model, X_train, y_train)
-        
+        return self.evaluateModel(y_test, y_pred, model, X_train, y_train)
+    
+    # Commented out because this algorithm just explodes    
     def SVRRegression(self, features: list, split: float, kernel = 'linear', C = 1.0, epsilon = 0.1):
         '''
         Training and evaluating using SVR because this model is more suitable for prediction
@@ -306,72 +357,8 @@ class ML:
         
         y_pred = model.predict(X_test)
         print("SVR Result")
-        self.evaluateModel(y_test, y_pred)
-        self.performCrossValidation(model, X_train, y_train)
-        
-    def evaluateModel(self, y_test, y_pred):
-        '''
-        Evaluate the model using these metrics: R-squared, mean absolute error and mean absolute percentage error
-        Mean absolute percentage error (MAPE): Percentage of how "off" the prediction is. 
-        Ex: 10% MAPE means the prediction is off by 10%
-        '''
-        
-        r2 = r2_score(y_test, y_pred)
-        mae = mean_absolute_error(y_test, y_pred)
-        mape = np.mean(np.abs((y_test - y_pred) / y_test)) * 100 # MAPE in percentage
-        
-        # List to store results
-        predictionResults = []
-        
-        predictionResults.append(f"R-squared: {r2}")
-        predictionResults.append(f"Mean Absolute Error: {mae}")
-        predictionResults.append(f"Mean Absolute Percentage Error: {mape: .2f}%")
-        
-        predictionResults.append("\nActual vs Predicted values:")
-        for i, (actual, predicted) in enumerate(zip(y_test, y_pred)):
-            if i >= 10:
-                predictionResults.append(f"... And {len(y_test)} more predictions left")
-                break
-            predictionResults.append(f"Actual: {actual}$, Predicted: {predicted: .2f}$")
-            
-        # Debugging    
-        for lines in predictionResults:
-            print(lines)
+        return self.evaluateModel(y_test, y_pred, model, X_train, y_train)
 
-        return predictionResults
-    
-    def performCrossValidation(self, model, X_train, y_train, k_folds = 5):
-        '''
-        Perform a K-fold cross validation on a model
-        
-        Params:
-        model: The model to be evaluated
-        X_train (dataframe): The training set
-        y_train (series): The target set (in this case, 'Price')
-        k_folds (int): Number of folds to do cross validation, default is 5
-        '''
-        
-        print(f"Performing {k_folds}-folds cross validation")
-        cvScores = cross_val_score(model, X_train, y_train, cv=k_folds, scoring='r2')
-        cvScoresRounded = np.round(cvScores, 2)
-        avgScore = round(np.mean(cvScores), 2)
-        
-        # list to store the output
-        cvResult = []
-        
-        # Append the rounded cross validation score
-        for i, score in enumerate(cvScoresRounded):
-            cvResult.append(f"Fold {i+1} R-squared: {score}")
-        
-        # Append the average score    
-        cvResult.append(f"Average R-squared across {k_folds}: {avgScore}")
-        
-        # Debug
-        for lines in cvResult:
-            print(lines)
-            
-        return cvResult
-        
         
 if __name__ == "__main__":
     print("Run this from the GUI.")

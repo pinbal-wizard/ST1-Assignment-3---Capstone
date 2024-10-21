@@ -210,9 +210,9 @@ class GUI():
         self.trainTestSplitSlider = ui.slider(min=20,max=80, value=80) ### Make functional
         ui.label().bind_text_from(self.trainTestSplitSlider, 'value', backward=lambda v: f"Train {v}%, Test {100-v}%") 
         
-        ui.markdown("#### Regression algorithms")
-        listofRegressionAlgorithms = ["Linear", "Decision Tree", "Random forest", "Adaboost", "XGBoost", "K-Nearest neighbour", "SVR"]
-        self.regressionAlgorithm = ui.radio(listofRegressionAlgorithms, value="Linear")   ### Make functional
+        #ui.markdown("#### Regression algorithms")
+        #listofRegressionAlgorithms = ["Linear", "Decision Tree", "Random forest", "Adaboost", "XGBoost", "K-Nearest neighbour", "SVR"]
+        #self.regressionAlgorithm = ui.radio(listofRegressionAlgorithms, value="Linear")   ### Make functional
         
         # endregion
         
@@ -287,16 +287,13 @@ class GUI():
     
     # Passing the settings to machine learning file        
     def runML(self):
-        selectedAlgorithm = self.regressionAlgorithm.value 
-        print(f"The selected algorithm is: {selectedAlgorithm}") # Debugging
-        
         selectedSplit = self.trainTestSplitSlider.value / 100
         print(f"The selected training/testing split is: {selectedSplit}") # Debugging
         
         cleanedDF = self.df
         
         mlInstance = ml.ML(cleanedDF)
-        mlInstance.run(selectedAlgorithm, self.selectedPredictors, selectedSplit)
+        mlInstance.runAllAlgorithm(self.selectedPredictors, selectedSplit)
     
 if __name__ in {"__main__", "__mp_main__"}:
     print("Run main.py, this won't work")
