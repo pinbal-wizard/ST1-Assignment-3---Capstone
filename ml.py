@@ -37,6 +37,8 @@ class ML:
         split (float): The train/test split used selected by the user
         '''
         
+        print(f"\nSelected predictors are: {features}")
+
         # Dispatching
         algorithms = {
             'linear': self.linearRegression,
@@ -53,7 +55,7 @@ class ML:
         resultsButAsADict = {}
         
         for algoName, algoMethod in algorithms.items():
-            print(f"\nRunning {algoName.capitalize()}... ")
+            #print(f"\nRunning {algoName.capitalize()}... ")
             metrics = algoMethod(features, split) # Capturing all metrics
             results.append((algoName, metrics))
             resultsButAsADict[algoName] = metrics
@@ -168,7 +170,7 @@ class ML:
         y = self.df['Price']  # 'Price' as the target variable
         
         # Debug
-        print(f"\nSelected predictors: {list(X.columns)}")
+        #print(f"\nSelected predictors: {list(X.columns)}")
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split, random_state=42)
         
@@ -177,7 +179,7 @@ class ML:
         
         y_pred = model.predict(X_test)
         
-        print(f"Linear Regression Results")
+        #print(f"Linear Regression Results")
         return self.evaluateModel(y_test, y_pred, model, X_train, y_train)
             
     def decisionTree(self, features: list, split: float):
@@ -200,7 +202,7 @@ class ML:
         y = self.df['Price']
         
         # Debug
-        print(f"\nSelected predictors: {list(X.columns)}")
+        #print(f"\nSelected predictors: {list(X.columns)}")
         
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size= 1 - split, random_state = 42)
 
@@ -209,7 +211,7 @@ class ML:
         
         y_pred = model.predict(X_test)
         
-        print(f"Decision Tree results")
+        #print(f"Decision Tree results")
         return self.evaluateModel(y_test, y_pred, model, X_train, y_train)
 
     def randomForest(self, features: list, split: float):
@@ -232,7 +234,7 @@ class ML:
         y = self.df['Price']
         
         # Debug
-        print(f"\nSelected predictors: {list(X.columns)}")
+        #print(f"\nSelected predictors: {list(X.columns)}")
         
         X_train, X_test, y_train, y_test = train_test_split(X, y, train_size= 1 - split, random_state = 42)
         
@@ -241,7 +243,7 @@ class ML:
         
         y_pred = model.predict(X_test)
         
-        print(f"Random Forest results")
+        #print(f"Random Forest results")
         return self.evaluateModel(y_test, y_pred, model, X_train, y_train)
         
     def adaBoost(self, features: list, split: float):
@@ -264,7 +266,7 @@ class ML:
         y = self.df['Price']
         
         # Debug
-        print(f"\nSelected predictors: {list(X.columns)}")
+        #print(f"\nSelected predictors: {list(X.columns)}")
         
         X_train, X_test, y_train, y_test = train_test_split(X, y, train_size = 1 - split, random_state = 42)
         
@@ -275,7 +277,7 @@ class ML:
         
         y_pred = model.predict(X_test)
         
-        print(f"Adaboost Results")
+        #print(f"Adaboost Results")
         return self.evaluateModel(y_test, y_pred, model, X_train, y_train)
         
     def XGBoost(self, features: list, split: float):
@@ -286,7 +288,7 @@ class ML:
         y = self.df['Price']
 
         # Debug
-        print(f"\nSelected predictors: {list(X.columns)}")
+        #print(f"\nSelected predictors: {list(X.columns)}")
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 1 - split, random_state = 42)
 
@@ -295,7 +297,7 @@ class ML:
 
         y_pred = model.predict(X_test)
 
-        print(f"XGBoost results")
+        #print(f"XGBoost results")
         return self.evaluateModel(y_test, y_pred, model, X_train, y_train)
 
     def KNNRegressor(self, features: list, split: float, k = 5):
@@ -316,7 +318,7 @@ class ML:
         y = self.df['Price']
         
         # Debug
-        print(f"\nSelected predictors: {list(X.columns)}")
+        #print(f"\nSelected predictors: {list(X.columns)}")
         
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split, random_state=42)
         
@@ -324,7 +326,7 @@ class ML:
         model.fit(X_train, y_train)
         
         y_pred = model.predict(X_test)
-        print("K-Nearest Neighbours Result")
+        #print("K-Nearest Neighbours Result")
         return self.evaluateModel(y_test, y_pred, model, X_train, y_train)
     
     # Commented out because this algorithm just explodes    
@@ -353,7 +355,7 @@ class ML:
         y = self.df['Price']
         
         # Debug
-        print(f"\nSelected predictors: {list(X.columns)}")
+        #print(f"\nSelected predictors: {list(X.columns)}")
         
         X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=1-split, random_state=42)
         
@@ -361,7 +363,7 @@ class ML:
         model.fit(X_train, y_train)
         
         y_pred = model.predict(X_test)
-        print("SVR Result")
+        #print("SVR Result")
         return self.evaluateModel(y_test, y_pred, model, X_train, y_train)
 
         
