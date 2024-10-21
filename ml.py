@@ -98,6 +98,11 @@ class ML:
         Returns:
         None: Prints the evaluation result and the actual vs. predicted results
         '''
+        # Fix for category datatype not working with this algorithm
+        for feature in features:
+            if self.df[feature].dtype == 'category':
+                self.df[feature] = self.df[feature].cat.codes
+
         X = self.df[features]  # Selected features
         y = self.df['Price']  # 'Price' as the target variable
         
@@ -126,6 +131,10 @@ class ML:
         Returns:
         None: Print out the predicted vs. the actual results directly 
         '''
+        # Fix for category datatype not working with this algorithm
+        for feature in features:
+            if self.df[feature].dtype == 'category':
+                self.df[feature] = self.df[feature].cat.codes
         
         X = self.df[features]
         y = self.df['Price']
@@ -155,6 +164,10 @@ class ML:
         Returns:
         None: Print out the predicted vs. the actual results directly 
         '''
+        # Fix for category datatype not working with this algorithm
+        for feature in features:
+            if self.df[feature].dtype == 'category':
+                self.df[feature] = self.df[feature].cat.codes
         
         X = self.df[features]
         y = self.df['Price']
@@ -184,6 +197,10 @@ class ML:
         Returns:
         None: Print the prediction directly
         '''
+        # Fix for category datatype not working with this algorithm
+        for feature in features:
+            if self.df[feature].dtype == 'category':
+                self.df[feature] = self.df[feature].cat.codes
         
         X = self.df[features]
         y = self.df['Price']
@@ -234,6 +251,10 @@ class ML:
         split (float): The train/test split
         k (int): K-Neighbours 
         '''
+        # Fix for category datatype not working with this algorithm
+        for feature in features:
+            if self.df[feature].dtype == 'category':
+                self.df[feature] = self.df[feature].cat.codes
         
         X = self.df[features]
         y = self.df['Price']
@@ -267,6 +288,10 @@ class ML:
         
         Documentations: https://scikit-learn.org/1.5/modules/generated/sklearn.svm.SVR.html
         '''
+        # Fix for category datatype not working with this algorithm
+        for feature in features:
+            if self.df[feature].dtype == 'category':
+                self.df[feature] = self.df[feature].cat.codes
         
         X = self.df[features]
         y = self.df['Price']
