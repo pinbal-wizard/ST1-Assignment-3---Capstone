@@ -46,8 +46,7 @@ class ML:
             'random forest': self.randomForest,
             'adaboost': self.adaBoost,
             'xgboost': self.XGBoost,
-            'k-nearest neighbour': self.KNNRegressor,
-            'svr': self.SVRRegression
+            'k-nearest neighbour': self.KNNRegressor
         }
         
         # List to store evaluation results
@@ -329,43 +328,6 @@ class ML:
         #print("K-Nearest Neighbours Result")
         return self.evaluateModel(y_test, y_pred, model, X_train, y_train)
     
-    # Commented out because this algorithm just explodes    
-    def SVRRegression(self, features: list, split: float, kernel = 'linear', C = 1.0, epsilon = 0.1):
-        '''
-        Training and evaluating using SVR because this model is more suitable for prediction
-        It just explodes due to how large the data set is
-        
-        Params:
-        features (list): Selected predictors by the user
-        split (float): Test/train split specified by the user
-        kernel (str): Functions to deterine the similarity between input vectors. Default is linear, a dot product between input vectors. 
-        (kernel cont.) Determines how data input is transformed
-        
-        C (float): Regularization parameter. Controls the error tolerance of the data. High means less tolerance, low means more tolerance
-        epsilon (float): Defines a margin of tolerance where predictions are considered "close enough" to the actual values, and no penalty is applied
-        
-        Documentations: https://scikit-learn.org/1.5/modules/generated/sklearn.svm.SVR.html
-        '''
-        # Fix for category datatype not working with this algorithm
-        for feature in features:
-            if self.df[feature].dtype == 'category':
-                self.df[feature] = self.df[feature].cat.codes
-        
-        X = self.df[features]
-        y = self.df['Price']
-        
-        # Debug
-        #print(f"\nSelected predictors: {list(X.columns)}")
-        
-        X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=1-split, random_state=42)
-        
-        model = SVR(kernel=kernel, C=C, epsilon=epsilon)
-        model.fit(X_train, y_train)
-        
-        y_pred = model.predict(X_test)
-        #print("SVR Result")
-        return self.evaluateModel(y_test, y_pred, model, X_train, y_train)
-
         
 if __name__ == "__main__":
     print("Run this from the GUI.")
