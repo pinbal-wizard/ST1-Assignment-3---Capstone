@@ -87,13 +87,14 @@ class GUI():
                     We splitted the program into multiple classes over a few files which allowed us to develop the program quickly as we could split the workload between each class. Every class had their own purpose
                     in the program, for example the gui class handled the gui while the data class handled cleaning the dataset, using this method we could edit the dataset in the data class and see the GUI update with
                     with the new changes. This meant that each group member could make edits to the program, push their changes to the public github and avoid most merge conflicts, as each member would stick to their own file.
-                    This project aimed to analyse the dataset and extract any usefull infomation, such as the distribution of the target variable, (vehicle price) and any interesting paatterns, like the most
+                    This project aimed to analyse the dataset and extract any useful infomation, such as the distribution of the target variable, (vehicle price) and any interesting paatterns, like the most
                     common brand or type. The other main goal was to develop a accurate model that could estimate the price of a vehicle given a set of variables. This system focues helping sellers price their vehicle
                     effectively.
                     """)    
             
         # endregion    
-        
+        # region convering the design
+        ui.markdown("### The design")
         # region reading the data
         ui.markdown("#### Reading the data")
         ui.markdown("Reading the data is critical as without it you cant do anything. below is a \
@@ -108,6 +109,12 @@ class GUI():
         print(f\"{len(self.df)} : Rows after Filtering\")\n\
         self.removeOutliers(method='IQR', columns=['Price'])\n\
         print(f\"{len(self.df)} : Rows after Outlier Removal\")")
+        ui.markdown("""
+                Reading and cleaning the data was handled in the data class, the program will first call this function to clean the dataset, other classes will then
+                use the new and cleaned dataset to run further analysis or machine learning algroithms to predict the next target variable. 
+                This class gave the user the option to clean the data in 4 different ways, which could alter the algroithms training.
+
+                    """)
         # endregion
 
         # region cols
@@ -120,7 +127,7 @@ class GUI():
                     ui.label(colName + ": ")
                     ui.label(colType).props('inline font-size=100')
 
-        ui.markdown("> ##### Observations\n A few of the colums are int32 or float64 these are our numbers, or quantitative colums. \
+        ui.markdown("> #### Observations\n A few of the colums are int32 or float64 these are our numbers, or quantitative colums. \
                     There are also colums that have a type 'category' these are our catagorical types.")
                 
         # endregion

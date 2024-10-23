@@ -8,13 +8,13 @@ Data exploration at basic level
 Visual and statistic correlation analysis for selection of best features (Analyse)
 '''
 
-import data
 import pandas as pd
 
 
 
 class Analysis():
-    def displayData(self) -> None:
+    def displayData(self, df: pd.DataFrame) -> None:
+        self.df = df
         '''
         Displays data in CSV
         '''
@@ -54,11 +54,4 @@ class Analysis():
     
     
 if __name__ == '__main__':
-    data = data.Data()
-    dataAnalysis = Analysis(data)
-
-    dataAnalysis.displayData()
-    print("------ Random statitics ------")
-    print(f"Electric vehicles: {dataAnalysis.analyseValue('FuelConsumption', '0')}")
-    print("-------- Column Info ---------")
-    print(dataAnalysis.df.dtypes)
+    print("Please run main.py")
