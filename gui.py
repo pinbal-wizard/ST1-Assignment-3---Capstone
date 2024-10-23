@@ -44,15 +44,49 @@ class GUI():
         with ui.header():
             ui.markdown("# **Software Technology Group 42**")
 
+        # region background
+            
+        ui.markdown("### Background")
+        ui.markdown(f"This project addresses the problem of determining an accurate price to market your your vehicle. Additioanlly, the project focuses on display important statistics about Australian vehicles, such as most common brand, etc. \
+                    The progam will need to be able to read and clean a given dataset, find any important infomation on the dataset then use the dataset to predict the price of a vehicle given a set of infomation. Online tools, such as carguides\
+                    [vehicle price estimator](https://www.carsguide.com.au/price), already exsist on the internet, however those tools only take the vehicles model and year into account to estimate a price for it, while this tool puts more variables into play, which can alter the price of the vehicle.")    
+            
+        # endregion    
+
         # region problem Statement
             
         ui.markdown("### Problem statement")
-        ui.markdown(f"This project is based on the Price data of Australian cars, the dataset is available [here](https://www.kaggle.com/datasets/nelgiriyewithana/australian-vehicle-prices). It contains 16734 entries.\
-                     We are trying to predict the price of cars. There are many different variables in this problem, the dependent one is the price of the car. Our dataset has \
-                     {len(self.df.columns)} other possible colums for independent variables however we will only be using 12 of them these columns. These are: Brand (Categorical),\
-                     Year (Quantitative), UsedOrNew (Qualitative), Transmission (Qualitative), Engine (Quantitative), DriveType(Qualitative), FuelType(Qualitative), FuelConsumption(Quantitative)\
-                     Kilometers (Quantitative), CylindersInEngine (Quantitative), Doors (Quantitative), Seats (Quantitative). The Columns we won\'t be using are: Model, Car/Suv, Title, ColorExtInt,\
-                     Location, and BodyType.")    
+        ui.markdown(f"""
+                    This project is based on the Price data of Australian cars, available [here](https://www.kaggle.com/datasets/nelgiriyewithana/australian-vehicle-prices), containing 16734 entries.
+                    The goal for this project is to predict the vehicle price using various factors, with the price being the target variable. While the dataset gives us {len(self.df.columns)} columns,
+                    we will only focus on 12. Them being: \n
+                    - **Brand** (Categorical)
+                    - **Year** (Quantitative)
+                    - **UsedOrNew** (Qualitative)
+                    - **Transmission** (Qualitative)
+                    - **Engine** (Qualitative)
+                    - **DriveType** (Qualitative)
+                    - **FuelType** (Qualitative)
+                    - **FuelConsumption** (Qualitative)
+                    - **Kilometers** (Qualitative)
+                    - **CylindersInEngine** (Qualitative)
+                    - **Doors** (Qualitative)
+                    - **Seats** (Qualitative)\n
+                    The Columns we won\'t be using are: \n
+                    - **Model** 
+                    - **Car/Suv** 
+                    - **Title**
+                    - **ColorExtInt**
+                    - **Location**
+                    - **BodyType**\n
+                    A python-based, object-orientated approach was chosen because it allows for better code organization, making this project easy to manage and easy to scale further if needed.
+                    We splitted the program into multiple classes over a few files which allowed us to develop the program quickly as we could split the workload between each class. Every class had their own purpose
+                    in the program, for example the gui class handled the gui while the data class handled cleaning the dataset, using this method we could edit the dataset in the data class and see the GUI update with
+                    with the new changes. This meant that each group member could make edits to the program, push their changes to the public github and avoid most merge conflicts, as each member would stick to their own file.
+                    This project aimed to analyse the dataset and extract any usefull infomation, such as the distribution of the target variable, (vehicle price) and any interesting paatterns, like the most
+                    common brand or type. The other main goal was to develop a accurate model that could estimate the price of a vehicle given a set of variables. This system focues helping sellers price their vehicle
+                    effectively.
+                    """)    
             
         # endregion    
         
