@@ -124,12 +124,46 @@ class GUI():
         - **ML**: Runs all the machine learning algorithms.  
         - **Analysis**: Runs any analysis on the cleaned dataset.  
         """)
-        # endregion
+        
+
         ui.markdown("""Throughout the project, we made sure that when we were designing a feature, we would create a completely new function to handle any logic, that way, when implementing a new feature
                             into the program, we could just call for the new function when we wanted it. This meant that when debugging code, it's easier to understand whats happening. Additionally, when merging commits, we could easily,
                             find out what lines we want to keep and what lines we want to throw away. Finally, when defining functions, we made sure to include as much infomation as possible, such as required input/output types and a brief description of what the function does.""")
         app.add_static_file(local_file="BestPracticExample.png")
         ui.image("BestPracticExample.png").props(f"width=770px height=300px")
+        # endregion
+        ui.markdown("### Testing")
+        ui.markdown("""
+                    We did a few unit tests on our code, using selenium we could play with the inputs and see how they interacted with our GUI, checking input validation and whatnot.
+
+                    Throughout the unit testing, we found no bugs.
+                    
+                    """)
+        
+        ui.markdown("### Intergration")
+        ui.markdown("""
+                    Intergrating the modules of the program together was pretty easy, considering that we followed an OOP structure; intergrating each part into the GUI was just calling a function or class.
+                    There was a time when one group member was training a model and a bug that seemed to come out of nowhere crashed the model during training. This bug ended up happening because the data
+                    in one of the colums wasn't cleaned correctly, leaving some weird data. This was the only time our integration technique worked against us, as the person experiencing the bug didn't know that
+                    it was the reason for the bug, as the bug was in a completely different file. Luckly though, fixing said bug was much easier because the code was split up, so tracking down a subprocess was simple.
+                    """)
+        app.add_static_file(local_file="BugImage.png")
+        ui.image("BugImage.png").props(f"width=635px height=397px")
+        ui.markdown("""We didn't use any third party API in our system as we believe everything should be done in-house so we can show our skills and knowledge in the relevant fields.
+                    """)
+                    
+        
+        
+        
+        ui.markdown("### Refrences")
+        ui.markdown("""
+                    **Dataset Used for model:** \n
+                        Nelgiri Yewithana. (n.d.). Australian Vehicle Prices. Kaggle. https://www.kaggle.com/datasets/nelgiriyewithana/australian-vehicle-prices/data \n
+                    **Links in website:** \n
+                        Beers, B. (2024) P-value: What it is, how to calculate it, and why it matters, Investopedia. Available at: https://www.investopedia.com/terms/p/p-value.asp (Accessed: 23 October 2024). 
+
+                    
+                    """)
 
         # region reading the data
         ui.markdown("#### Reading the data")
@@ -411,8 +445,13 @@ class GUI():
 
         ui.markdown("##### Results")
         ui.markdown(f"> The best performing algorithm was: {best.capitalize()}    \n\
-                    It had a R^2 value of {results[best][0]:.5f}   \n\
-                    It had a MAPE of {results[best][2]:.5f}%")
+                        It had a R^2 value of {results[best][0]:.5f}   \n\
+                        It had a MAPE of {results[best][2]:.5f}%")
+        for algo in results:
+            if algo is not best:
+                ui.markdown(f"> Algorithm: {algo}    \n\
+                            R^2 value: {results[algo][0]:.5f}   \n\
+                            MAPE: {results[algo][2]:.5f}%")
             
 
 if __name__ in {"__main__", "__mp_main__"}:
