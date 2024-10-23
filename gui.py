@@ -110,13 +110,13 @@ class GUI():
         ui.markdown("""This project utilises the following packages to interpret and clean the data, run the GUI, etc.  
         - **NiceGUI**: Runs the GUI.  
         - **Pandas**: Reads the data.  
-        - **PyArrow**: Used for something idk.  
-        - **NumPy**: Used for something idk.  
-        - **SciPy**: Used for something idk.  
+        - **PyArrow**: Dependency.  
+        - **NumPy**: Dependency.  
+        - **SciPy**: Dependency.  
         - **Scikit-learn**: Used for machine learning.  
         - **Matplotlib**: Used for creating diagrams.  
         - **XGBoost**: Optimised gradient boosting algorithm.  
-        - **Joblib**: Used for something idk.  
+        - **Joblib**: Dependency.  
         """)
         # endregion
 
@@ -168,7 +168,7 @@ class GUI():
         self.missingValuesRadio = ui.radio(["Delete Rows", "Median Value", "Mode Value", "Interpolate"], value="Delete Rows",on_change=missingValuesRefresh)   ### Make functional
 
         ui.markdown("##### Observations")
-        ui.markdown("> We have decided that we will remove our outlier prior to where it was expected as our large dataset does have quite a few\
+        ui.markdown("> We have decided that we will remove our outliers prior to where it was expected as our large dataset does have quite a few\
                      Outliers however with the above Radio you can change how those outliers are removed.")
 
         # endregion
