@@ -44,6 +44,14 @@ class GUI():
         with ui.header():
             ui.markdown("# **Software Technology Group 42**")
 
+        app.add_static_file(local_file="Group assessment coversheet.jpg")
+        ui.image("Group assessment coversheet.jpg").classes('w-80').force_reload()
+
+
+        app.add_static_file(local_file="Group assessment coversheet.jpg")
+        ui.image("Group assessment coversheet.jpg").classes('w-80').force_reload()
+
+
         # region background
             
         ui.markdown("### Background")
@@ -170,17 +178,17 @@ class GUI():
         ui.markdown(f"> ##### Observations\n> Using the above analysis the following colums have been selected to go to the next step before deciding\
                      if they are to be used for the final predictors.")
         ui.markdown("> - Brand (Categorical)\n\
-                    > - Year (Quantitative)\n  \
-                    > + UsedOrNew (Qualitative)\n\
-                    > + Transmission (Qualitative)\n\
-                    > + Engine (Quantitative)\n\
-                    > + DriveType(Qualitative)\n\
-                    > + FuelType(Qualitative)\n\
-                    > + FuelConsumption(Quantitative)\n\
-                    > + Kilometers (Quantitative)\n\
-                    > + CylindersInEngine (Quantitative)\n\
-                    > + Doors (Quantitative)\n\
-                    > + Seats (Quantitative)")
+                    > - Year (Continuous)\n  \
+                    > + UsedOrNew (Categorical)\n\
+                    > + Transmission (Categorical)\n\
+                    > + Engine (Categorical)\n\
+                    > + DriveType(Categorical)\n\
+                    > + FuelType(Categorical)\n\
+                    > + FuelConsumption(Continuous)\n\
+                    > + Kilometers (Continuous)\n\
+                    > + CylindersInEngine (Continuous)\n\
+                    > + Doors (Continuous)\n\
+                    > + Seats (Continuous)")
         
         # endregion
 
@@ -354,7 +362,6 @@ class GUI():
     @ui.refreshable    
     def runML(self, type=0):
         if type==1:
-                print("type is 1")
                 ui.markdown("Please Click Start")
                 return
         selectedSplit = self.trainTestSplitSlider.value / 100
