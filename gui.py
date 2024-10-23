@@ -48,10 +48,6 @@ class GUI():
         ui.image("Group assessment coversheet.jpg").classes('w-80').force_reload()
 
 
-        app.add_static_file(local_file="Group assessment coversheet.jpg")
-        ui.image("Group assessment coversheet.jpg").classes('w-80').force_reload()
-
-
         # region background
             
         ui.markdown("### Background")
