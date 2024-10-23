@@ -118,8 +118,18 @@ class GUI():
         - **XGBoost**: Optimised gradient boosting algorithm.  
         - **Joblib**: Dependency.  
         """)
+        ui.markdown("""The classes and their responsibilities can be seen below, etc.  
+        - **GUI**: Runs the GUI.  
+        - **Data**: Reads & Cleans the data.  
+        - **ML**: Runs all the machine learning algorithms.  
+        - **Analysis**: Runs any analysis on the cleaned dataset.  
+        """)
         # endregion
-
+        ui.markdown("""Throughout the project, we made sure that when we were designing a feature, we would create a completely new function to handle any logic, that way, when implementing a new feature
+                            into the program, we could just call for the new function when we wanted it. This meant that when debugging code, it's easier to understand whats happening. Additionally, when merging commits, we could easily,
+                            find out what lines we want to keep and what lines we want to throw away. Finally, when defining functions, we made sure to include as much infomation as possible, such as required input/output types and a brief description of what the function does.""")
+        app.add_static_file(local_file="BestPracticExample.png")
+        ui.image("BestPracticExample.png").props(f"width=770px height=300px")
 
         # region reading the data
         ui.markdown("#### Reading the data")
