@@ -45,20 +45,20 @@ class GUI():
             ui.markdown("# **Software Technology Group 42**")
 
         app.add_static_file(local_file="Group assessment coversheet.jpg")
-        ui.image("Group assessment coversheet.jpg").classes('w-80').force_reload()
+        ui.image("Group assessment coversheet.jpg").props(f"width=786px height=1123px").style("display: block; margin-left: auto; margin-right: auto;").force_reload()
 
 
         # region background
             
         ui.markdown("### Background")
-        ui.markdown(f"This project addresses the problem of determining an accurate price to market your your vehicle. Additioanlly, the project focuses on display important statistics about Australian vehicles, such as most common brand, etc. \
-                    The progam will need to be able to read and clean a given dataset, find any important infomation on the dataset then use the dataset to predict the price of a vehicle given a set of infomation. Online tools, such as carguides\
-                    [vehicle price estimator](https://www.carsguide.com.au/price), already exsist on the internet, however those tools only take the vehicles model and year into account to estimate a price for it, while this tool puts more variables into play, which can alter the price of the vehicle.")    
-            
+        ui.markdown("""This project addresses the problem of determining an accurate price to market your your vehicle. Additioanlly, the project focuses on display important statistics about Australian vehicles, such as most common brand, etc.
+                    The progam will need to be able to read and clean a given dataset, find any important infomation on the dataset then use the dataset to predict the price of a vehicle given a set of infomation. Online tools, such as carguides
+                    [vehicle price estimator](https://www.carsguide.com.au/price), already exsist on the internet, however those tools only take the vehicles model and year into account to estimate a price for it, while this tool puts more variables into play, 
+                    which can alter the price of the vehicle.
+                    """)    
         # endregion    
 
         # region problem Statement
-            
         ui.markdown("### Problem statement")
         ui.markdown(f"""
                     This project is based on the Price data of Australian cars, available [here](https://www.kaggle.com/datasets/nelgiriyewithana/australian-vehicle-prices), containing 16734 entries.
@@ -83,7 +83,7 @@ class GUI():
                     - **ColorExtInt**
                     - **Location**
                     - **BodyType**\n
-                    A python-based, object-orientated approach was chosen because it allows for better code organization, making this project easy to manage and easy to scale further if needed.
+                    A python-based, object-oriented approach was chosen because it allows for better code organization, making this project easy to manage and easy to scale further if needed.
                     We splitted the program into multiple classes over a few files which allowed us to develop the program quickly as we could split the workload between each class. Every class had their own purpose
                     in the program, for example the gui class handled the gui while the data class handled cleaning the dataset, using this method we could edit the dataset in the data class and see the GUI update with
                     with the new changes. This meant that each group member could make edits to the program, push their changes to the public github and avoid most merge conflicts, as each member would stick to their own file.
@@ -93,11 +93,37 @@ class GUI():
                     """)    
             
         # endregion    
-        # region convering the design
+
+        # region covering the design
         ui.markdown("### The design")
+        app.add_static_file(local_file="UML.png")
+        ui.image("UML.png").props(f"width=770px height=700px")
+        ui.markdown("""As seen in the image provided above, object-oriented principles were used to organise the structure of the program into sections, each section would provide it's own feature to the final product.
+                    The user would first run main.py and view the website, in the backend, main.py would deploy the GUI through the GUI class, the GUI class would use the Data class to fetch the dataset and clean it,
+                    using the now cleaned set, the program would then chuck the new dataset into the ML class, which would attempt to create a model based off the infomation in the dataset and the predictors
+                    that the user has chosen, the clean dataset would also be fed into the Analysis class which would read through the dataset and pick at any intresting infomation.
+                    """)
+        # endregion
+
+        # region covering the deployment
+        ui.markdown("### Deployment")
+        ui.markdown("""This project utilises the following packages to interpret and clean the data, run the GUI, etc.  
+        - **NiceGUI**: Runs the GUI.  
+        - **Pandas**: Reads the data.  
+        - **PyArrow**: Used for something idk.  
+        - **NumPy**: Used for something idk.  
+        - **SciPy**: Used for something idk.  
+        - **Scikit-learn**: Used for machine learning.  
+        - **Matplotlib**: Used for creating diagrams.  
+        - **XGBoost**: Optimised gradient boosting algorithm.  
+        - **Joblib**: Used for something idk.  
+        """)
+        # endregion
+
+
         # region reading the data
         ui.markdown("#### Reading the data")
-        ui.markdown("Reading the data is critical as without it you cant do anything. below is a \
+        ui.markdown("Reading the data is a fundamental process in the program. below is a \
                     snipped from out code, specifically it is the code that reads and cleans our data \
                     before it is used in any way.")
         ui.code("    def __init__(self, mode = \"Delete Rows\") -> None:\n\
@@ -110,13 +136,11 @@ class GUI():
         self.removeOutliers(method='IQR', columns=['Price'])\n\
         print(f\"{len(self.df)} : Rows after Outlier Removal\")")
         ui.markdown("""
-                Reading and cleaning the data was handled in the data class, the program will first call this function to clean the dataset, other classes will then
-                use the new and cleaned dataset to run further analysis or machine learning algroithms to predict the next target variable. 
-                This class gave the user the option to clean the data in 4 different ways, which could alter the algroithms training.
-
+                Reading and cleaning the data was handled in the Data class, the program will first call this class to fetch and clean the dataset, with this infomation
+                the program can run further analysis or generate a model based off the predictors the user chooses.
                     """)
         # endregion
-
+        
         # region cols
         ui.markdown("#### Columns and Types")
         with ui.scroll_area().classes('w-50 h-100 border'):
