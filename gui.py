@@ -97,11 +97,11 @@ class GUI():
         # region covering the design
         ui.markdown("### The design")
         app.add_static_file(local_file="UML.png")
-        ui.image("UML.png").props(f"width=770px height=700px")
+        ui.image("UML.png").props(f"width=750px height=700px")
         ui.markdown("""As seen in the image provided above, object-oriented principles were used to organise the structure of the program into sections, each section would provide it's own feature to the final product.
                     The user would first run main.py and view the website, in the backend, main.py would deploy the GUI through the GUI class, the GUI class would use the Data class to fetch the dataset and clean it,
                     using the now cleaned set, the program would then chuck the new dataset into the ML class, which would attempt to create a model based off the infomation in the dataset and the predictors
-                    that the user has chosen, the clean dataset would also be fed into the Analysis class which would read through the dataset and pick at any intresting infomation.
+                    that the user has chosen, the clean dataset would also be fed into the Analysis class which would read through the dataset and pick at any intresting infomation. To run the model, the user just needs to run application.py, they can choose to train the dataset using retrain.py, however we have already provided a trained model
                     """)
         # endregion
 
