@@ -111,12 +111,12 @@ class GUI():
         - **NiceGUI**: Runs the GUI.  
         - **Pandas**: Reads the data.  
         - **PyArrow**: Dependency.  
-        - **NumPy**: Dependency.  
-        - **SciPy**: Dependency.  
+        - **NumPy**: Used for certain mathematical operations.  
+        - **SciPy**: Used to perform ANOVA analysis.  
         - **Scikit-learn**: Used for machine learning.  
         - **Matplotlib**: Used for creating diagrams.  
         - **XGBoost**: Optimised gradient boosting algorithm.  
-        - **Joblib**: Dependency.  
+        - **Joblib**: Used to deploy the trained model into serialized file.  
         """)
         ui.markdown("""The classes and their responsibilities can be seen below, etc.  
         - **GUI**: Runs the GUI.  
@@ -178,8 +178,8 @@ class GUI():
         self.missingValuesRadio = ui.radio(["Delete Rows", "Median Value", "Mode Value", "Interpolate"], value="Delete Rows",on_change=missingValuesRefresh)   ### Make functional
 
         ui.markdown("##### Observations")
-        ui.markdown("> We have decided that we will remove our outliers prior to where it was expected as our large dataset does have quite a few\
-                     Outliers however with the above Radio you can change how those outliers are removed.")
+        ui.markdown("> We have decided that we will remove our outliers prior to where it was expected, as our large dataset does have quite a few\
+                     outliers. However, with the above Radio you can change how those outliers are removed.")
 
         # endregion
 
